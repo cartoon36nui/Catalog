@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>รถยก KOMATSU — Spec Catalog</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --bg2: #111418;
+    --bg3: #181c22;
+    --border: #252a32;
+    --border-bright: #3a424f;
+    --accent: #f5a623;
+    --text: #e8ecf2;
+    --text-dim: #8a95a3;
+    --text-faint: #4a5360;
+    --gas: #4ade80;
+    --diesel: #60a5fa;
+    --electric: #a78bfa;
+    --red: #f87171;
+    --card-h: #1a1f28;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Sarabun', sans-serif; font-size: 14px; min-height: 100vh; overflow-x: hidden; }
+
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,12,15,0.95); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px; display: flex; align-items: center; gap: 16px; height: 56px;
+  }
+  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 3px; color: var(--accent); white-space: nowrap; }
+  .logo span { color: var(--text-dim); font-size: 13px; font-family: 'Sarabun', sans-serif; letter-spacing: 1px; }
+  .header-right { margin-left: auto; }
+  #compare-badge {
+    display: none; background: var(--accent); color: #000;
+    font-weight: 700; font-size: 12px; padding: 5px 14px; border-radius: 20px;
+    cursor: pointer; border: none; font-family: 'Sarabun', sans-serif;
+    align-items: center; gap: 6px; white-space: nowrap;
+  }
+  #compare-badge.visible { display: inline-flex; }
+
+  .filter-bar {
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    padding: 12px 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  }
+  .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 340px; }
+  .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); opacity: .4; pointer-events: none; }
+  #search {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-family: 'Sarabun', sans-serif; font-size: 14px;
+    padding: 8px 12px 8px 36px; outline: none; transition: border-color .2s;
+  }
+  #search:focus { border-color: var(--accent); }
+  #search::placeholder { color: var(--text-faint); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border-bright);
+    background: transparent; color: var(--text-dim); font-family: 'Sarabun', sans-serif;
+    font-size: 13px; cursor: pointer; transition: all .15s; white-space: nowrap;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 600; }
+  .chip.gas.active { background: var(--gas); border-color: var(--gas); color: #000; }
+  .chip.diesel.active { background: var(--diesel); border-color: var(--diesel); color: #000; }
+  .chip.elec.active { background: var(--electric); border-color: var(--electric); color: #000; }
+  .count-lbl { color: var(--text-faint); font-size: 12px; margin-left: auto; white-space: nowrap; }
+
+  .grid-wrap { padding: 20px; }
+  #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: 14px; }
+
+  .card {
+    background: var(--card-h); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px; cursor: pointer; transition: border-color .2s, transform .15s, box-shadow .2s;
+    position: relative; overflow: hidden;
+  }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0; transition: opacity .2s; }
+  .card:hover { border-color: var(--border-bright); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,.4); }
+  .card:hover::before, .card.selected::before { opacity: 1; }
+  .card.selected { border-color: var(--accent); }
+
+  .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+  .model-nm { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 500; }
+  .ebadge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; white-space: nowrap; letter-spacing: .5px; flex-shrink: 0; }
+  .ebadge.gas      { background: rgba(74,222,128,.15); color: var(--gas); border: 1px solid rgba(74,222,128,.3); }
+  .ebadge.diesel   { background: rgba(96,165,250,.15); color: var(--diesel); border: 1px solid rgba(96,165,250,.3); }
+  .ebadge.electric { background: rgba(167,139,250,.15); color: var(--electric); border: 1px solid rgba(167,139,250,.3); }
+
+  .card-specs { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+  .srow { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .slbl { color: var(--text-faint); font-size: 11px; flex-shrink: 0; }
+  .sval { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-dim); text-align: right; }
+  .sval.hl { color: var(--accent); font-weight: 500; }
+
+  .card-foot { display: flex; align-items: center; justify-content: space-between; }
+  .btn-detail { font-family: 'Sarabun', sans-serif; font-size: 12px; color: var(--text-dim); background: transparent; border: 1px solid var(--border-bright); border-radius: 6px; padding: 5px 12px; cursor: pointer; transition: all .15s; }
+  .btn-detail:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-cmp { font-family: 'Sarabun', sans-serif; font-size: 11px; color: var(--text-faint); background: transparent; border: none; cursor: pointer; padding: 4px 6px; border-radius: 4px; transition: color .15s; }
+  .btn-cmp:hover, .btn-cmp.active { color: var(--accent); }
+
+  /* MODAL */
+  .overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.75); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity .2s; }
+  .overlay.open { opacity: 1; pointer-events: all; }
+  .modal { background: var(--bg2); border: 1px solid var(--border-bright); border-radius: 16px; width: 100%; max-width: 720px; max-height: 90vh; overflow-y: auto; padding: 28px; position: relative; transform: translateY(20px); transition: transform .2s; }
+  .overlay.open .modal { transform: translateY(0); }
+  .modal-title { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 500; color: var(--accent); margin-bottom: 4px; }
+  .modal-sub { color: var(--text-faint); font-size: 13px; margin-bottom: 20px; display: flex; gap: 12px; align-items: center; }
+  .modal-close { position: absolute; top: 18px; right: 18px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; color: var(--text-dim); cursor: pointer; padding: 5px 10px; font-size: 18px; line-height: 1; transition: all .15s; }
+  .modal-close:hover { border-color: var(--red); color: var(--red); }
+  .sec { margin-bottom: 20px; }
+  .sec-title { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-faint); border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 10px; }
+  .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; }
+  .si { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,.03); }
+  .si-lbl { color: var(--text-dim); font-size: 12px; flex: 1; }
+  .si-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text); text-align: right; flex-shrink: 0; }
+  .si-val.hl { color: var(--accent); }
+
+  /* COMPARE PANEL */
+  #cmp-panel { position: fixed; inset: 0; z-index: 300; background: var(--bg); overflow-y: auto; transform: translateX(100%); transition: transform .3s cubic-bezier(.4,0,.2,1); }
+  #cmp-panel.open { transform: none; }
+  .cp-head { position: sticky; top: 0; z-index: 10; background: rgba(10,12,15,.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+  .cp-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--accent); }
+  .cp-close { margin-left: auto; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; color: var(--text-dim); cursor: pointer; padding: 6px 14px; font-family: 'Sarabun', sans-serif; font-size: 13px; transition: all .15s; }
+  .cp-close:hover { border-color: var(--red); color: var(--red); }
+  .cp-body { padding: 24px; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 500px; }
+  th { background: var(--bg3); padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--accent); border: 1px solid var(--border); white-space: nowrap; }
+  th:first-child { color: var(--text-faint); font-size: 11px; font-family: 'Sarabun', sans-serif; min-width: 200px; }
+  td { padding: 8px 14px; border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-dim); }
+  tr:hover td { background: rgba(255,255,255,.02); }
+  td:first-child { font-family: 'Sarabun', sans-serif; color: var(--text-dim); }
+  td.best { color: var(--gas); font-weight: 600; }
+
+  .empty { text-align: center; padding: 80px 20px; color: var(--text-faint); grid-column: 1/-1; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">KOMATSU <span>FORKLIFT CATALOG</span></div>
+  <div class="header-right">
+    <button id="compare-badge" onclick="openCmp()">
+      ⚖ <span id="cmp-cnt">0</span> รุ่น — เปรียบเทียบ
+    </button>
+  </div>
+</header>
+
+<div class="filter-bar">
+  <div class="search-wrap">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input id="search" type="text" placeholder="ค้นหารุ่น เช่น FD25, FB15…" oninput="doFilter()">
+  </div>
+  <div class="chips">
+    <button class="chip active" onclick="setE('all',this)">ทั้งหมด</button>
+    <button class="chip gas"    onclick="setE('เบนซิน',this)">⛽ เบนซิน</button>
+    <button class="chip diesel" onclick="setE('ดีเซล',this)">🛢️ ดีเซล</button>
+    <button class="chip elec"   onclick="setE('ไฟฟ้า',this)">⚡ ไฟฟ้า</button>
+  </div>
+  <span class="count-lbl" id="count-lbl">—</span>
+</div>
+
+<div class="grid-wrap"><div id="grid"></div></div>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeMdl()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeMdl()">✕</button>
+    <div id="mdl-body"></div>
+  </div>
+</div>
+
+<div id="cmp-panel">
+  <div class="cp-head">
+    <div class="cp-title">เปรียบเทียบสเปค</div>
+    <button class="cp-close" onclick="closeCmp()">✕ ปิด</button>
+  </div>
+  <div class="cp-body"><div id="cmp-body"></div></div>
+</div>
+
+<script>
+const RAW = {
+  models:["FG10T-21","FG10C-21","FD10T-21","FD10C-21","FG15T-21","FG15C-21","FD15T-21","FD15C-21","FG15HT-21","FG18T-21","FG18C-21","FD18T-21","FD18C-21","FG18HT-21","FG20T-17","FD20T-17","FD20C-17","FG20HT-17","FD20HT-17","FG25T-17","FD25T-17","FD25C-17","FG25HT-17","FD25HT-17","FG30T-17","FD30T-17","FD30C-17","FD30HT-17","FG35AT-17","FD35AT-17","FG20NT-17","FG25NT-17","FG30NT-17","FD40ZYT-10","FD35YT-10","FD40YT-10","FD45YT-10","FD50AYT-10","FG40ZT-10","FG35T-10","FG40T-10","FG45T-10","FG50AT-10","FD60-10","FD70-10","FD80-10","FD100-8","FD115-8","FD135-8","FD150E-8","FD160E-8","FD200-7","FD250-7","FH40-1","FH45-1","FH50-1","FB10-12","FB14-12","FB15-12","FB18-12","FB20A-12","FB15G-12","FB18G-12","FB20AG-12","FB10M-12","FB13M-12","FB15M-12","FB18M-12","FB20M-12","FB25-12","FB30-12"],
+  energy:["เบนซิน","เบนซิน","ดีเซล","ดีเซล","เบนซิน","เบนซิน","ดีเซล","ดีเซล","เบนซิน","เบนซิน","เบนซิน","ดีเซล","ดีเซล","เบนซิน","เบนซิน","ดีเซล","ดีเซล","เบนซิน","ดีเซล","เบนซิน","ดีเซล","ดีเซล","เบนซิน","ดีเซล","เบนซิน","ดีเซล","ดีเซล","ดีเซล","เบนซิน","ดีเซล","เบนซิน","เบนซิน","เบนซิน","ดีเซล","ดีเซล","ดีเซล","ดีเซล","ดีเซล","เบนซิน","เบนซิน","เบนซิน","เบนซิน","เบนซิน","ดีเซล","ดีเซล","ดีเซล","ดีเซล","ดีเซล","ดีเซล","ดีเซล","ดีเซล","ดีเซล","ดีเซล","ดีเซล","ดีเซล","ดีเซล","ไฟฟ้า","ไฟฟ้า","ไฟฟ้า","ไฟฟ้า","ไฟฟ้า","ไฟฟ้า","ไฟฟ้า","ไฟฟ้า","ไฟฟ้า","ไฟฟ้า","ไฟฟ้า","ไฟฟ้า","ไฟฟ้า","ไฟฟ้า","ไฟฟ้า"],
+  specs:{
+    "น้ำหนักยกสูงสุด (กก.)":[1000,1000,1000,1000,1500,1500,1500,1500,1500,1750,1750,1750,1750,1750,2000,2000,2000,2000,2000,2500,2500,2500,2500,2500,3000,3000,3000,3000,3500,3500,2000,2500,3000,4000,3500,4000,4500,5000,4000,3500,4000,4500,5000,6000,7000,8000,10000,11500,13500,15000,16000,20000,25000,4000,4500,5000,1000,1350,1500,1750,2000,1500,1750,2000,1000,1250,1500,1750,2000,2500,3000],
+    "โหลดเซ็นเตอร์ (มม.)":[500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,600,600,600,600,500,600,600,600,600,600,600,600,600,600,600,600,600,900,1220,600,600,600,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500],
+    "น้ำหนักตัวรถ (กก.)":[2080,2120,2180,2220,2450,2490,2550,2590,2450,2645,2685,2745,2785,2645,3220,3305,3345,3220,3305,3590,3680,3720,3590,3680,4210,4310,4345,4310,4910,4950,3230,3630,4070,5700,5755,6235,6820,7260,5685,5740,6215,6800,7240,8555,9245,10910,12980,14360,15480,16570,17200,27670,32850,6290,6920,7380,2770,2790,2930,3170,3620,3360,3390,3730,2600,2710,2980,3260,3730,3800,4660],
+    "ฐานล้อ (มม.)":[1400,1400,1400,1400,1400,1400,1400,1400,1400,1400,1400,1400,1400,1400,1650,1650,1650,1650,1650,1650,1650,1650,1650,1650,1700,1700,1700,1700,1700,1700,1400,1400,1450,1800,2000,2000,2000,2000,1800,2000,2000,2000,2000,2300,2300,2300,2800,2800,3100,3100,3100,3700,4400,2000,2000,2000,1410,1410,1410,1410,1470,1540,1540,1540,1190,1190,1340,1390,1485,1550,1650],
+    "ความยาวตัวรถรวมงา (มม.)":[2965,2965,2965,2965,3160,3160,3160,3160,3160,3200,3200,3200,3200,3200,3450,3450,3450,3450,3450,3655,3655,3655,3655,3655,3775,3775,3775,3775,3865,3865,3260,3475,3535,4025,4155,4220,4270,4405,4025,4155,4220,4270,4405,4700,4785,4890,5465,5505,5860,5920,6020,7205,8695,4220,4270,4405,2825,2980,2980,3015,3100,3115,3115,3170,2560,2560,2855,2920,3035,3515,3710],
+    "ความกว้างตัวรถ (มม.)":[1070,1070,1070,1070,1070,1070,1070,1070,1070,1070,1070,1070,1070,1070,1150,1150,1150,1150,1150,1150,1150,1150,1150,1150,1235,1235,1235,1235,1290,1290,1090,1090,1090,1350,1350,1450,1450,1450,1350,1350,1450,1450,1450,1980,1980,2050,2280,2310,2410,2410,2480,3095,3095,1520,1520,1520,1110,1110,1110,1110,1160,1110,1110,1160,1110,1110,1110,1110,1160,1200,1235],
+    "ความสูงเสา ลดระดับ (มม.)":[1995,1995,1995,1995,1995,1995,1995,1995,1995,1995,1995,1995,1995,1995,1995,1995,1995,1995,1995,1995,1995,1995,1995,1995,2070,2070,2070,2070,2100,2100,1995,1995,2070,2100,2105,2105,2205,2205,2100,2105,2105,2205,2205,2500,2585,2710,2890,3160,3170,3270,3290,3640,3800,2105,2205,2205,1995,1995,1995,1995,2110,1995,1995,2110,1995,1995,1995,1995,2110,1995,2065],
+    "ความสูงการยก (มม.)":[3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000],
+    "ความสูงเสา ยืดออก (มม.)":[3955,3955,3955,3955,3955,3955,3955,3955,3955,3955,3955,3955,3955,3955,4050,4050,4050,4050,4050,4050,4050,4050,4050,4050,4275,4275,4275,4275,4280,4280,4050,4050,4275,4130,4130,4130,4130,4345,4130,4130,4130,4130,4345,4350,4350,4350,4400,4670,4680,4780,4800,5130,5290,4130,4130,4345,3955,3955,3955,3955,3970,3955,3955,3970,3955,3955,3955,3955,3970,4050,4270],
+    "วงเลี้ยว Wa (มม.)":[1915,1915,1915,1915,1955,1955,1955,1955,1955,1990,1990,1990,1990,1990,2190,2190,2190,2190,2190,2240,2240,2240,2240,2240,2370,2370,2370,2370,2480,2480,1980,2050,2110,2580,2730,2770,2820,2850,2580,2730,2770,2820,2850,3250,3350,3450,4000,4010,4350,4400,4500,5250,6805,2845,2895,2925,1750,1750,1750,1785,1850,1930,1930,1970,1390,1390,1530,1590,1690,2120,2300],
+    "ทางเดินรถ พาเลท 1000x1200 (มม.)":[3315,3315,3315,3315,3360,3360,3360,3360,3360,3395,3395,3395,3395,3395,3650,3650,3650,3650,3650,3775,3775,3775,3775,3775,3930,3930,3930,3930,4055,4055,3410,3555,3620,4190,4375,4420,4480,4645,4190,4375,4420,4480,4645,null,null,null,null,null,null,null,null,null,null,4695,4755,4920,3150,3155,3155,3190,3275,3335,3335,3395,2790,2790,2935,2995,3115,3840,4060],
+    "ความเร็วเดินหน้า มีโหลด":["19","9/19","19","8.5/19","18.5","8.5/18.5","18.5","8.5/19","18.5","18.5","8.5/18.5","18.5","8.5/18.5","18.5","18.5","18.5","8.5/18.5","19","18.5","18.5","18.5","8.5/18.5","19","18.5","18.5","17","7.5/17","18.5","18","18","17","16.5","16","18","18","18","14.5/23","14.5/23","18","18","18","15.5/23","14.5/23.5","11/29","11/29","11/26","8.5/18/28","8.5/19/28","9/19.5/27.5","9/19.5/27.5","9.5/20/28","17","24","23.5","23.5","23.5","15","15","15","15","14","15","15","14","15","15","15","15","14","14","13.5"],
+    "ความเร็วยก มีโหลด (มม./วิ)":[580,580,620,620,570,570,620,620,590,570,570,620,620,590,545,590,590,620,660,545,590,590,620,660,515,490,490,550,410,450,545,545,515,460,460,460,455,455,510,510,510,440,440,500,450,400,470,430,350,325,320,270,275,485,420,420,340,340,340,320,280,280,320,280,340,340,340,320,280,260,330],
+    "ขึ้นทางลาด มีโหลด (%)":[34,38,49,41,26,27,33,31,37,25,25,29,28,33,28,28,26,38,37,23,23,22,32,31,26,20,20,25,20,21,27,23,24,29,29,26,29,28,28,25,25,26,25,29,29,24,40,34,28,25,23,17,18,33,29,28,19,19,19,16,14,14,16,14,19,19,19,16,14,16,18],
+    "มุมเอียงเสา หน้า/หลัง (°)":["6/10","6/10","6/10","6/10","6/10","6/10","6/10","6/10","6/10","6/10","6/10","6/10","6/10","6/10","6/12","6/13","6/13","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/10","6/10","6/10","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/12","6/10","6/10","6/10","6/10","6/10","6/10","6/10","6/10","6/10","6/10","6/10","6/10","6/10","6/11","6/11"],
+    "ขนาดงา หนาxกว้างxยาว (มม.)":["31x100x770","31x100x770","31x100x770","31x100x770","35x100x920","35x100x920","35x100x920","35x100x920","35x100x920","35x100x920","35x100x920","35x100x920","35x100x920","35x100x920","36x122x920","36x122x921","36x122x921","36x122x920","36x122x921","40x122x1070","40x122x1070","40x122x1070","40x122x1070","40x122x1070","45x122x1070","45x122x1070","45x122x1070","45x122x1070","50x150x1070","50x150x1070","36x122x920","40x122x1070","45x122x1070","50x150x1070","50x150x1070","50x150x1070","50x150x1070","50x150x1220","50x150x1070","50x150x1070","50x150x1070","50x150x1070","50x150x1220","65x150x1220","65x150x1220","65x170x1220","75x170x1220","75x185x1220","80x185x1220","85x190x1220","85x210x1220","95x280x1820","107x310x2420","55x150x1070","55x150x1070","55x150x1220","31x100x770","35x100x920","35x100x920","35x100x920","36x122x920","35x100x920","35x100x920","36x122x920","31x100x770","31x100x770","35x100x920","35x100x920","36x122x920","40x122x1070","45x122x1070"],
+    "ประเภทยาง":["ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","SSCT","SSCT","SSCT","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางลม","ยางตัน","ยางลม","ยางลม","ยางตัน","ยางลม","ยางลม","ยางลม","ยางลม","ยางตัน","ยางลม","ยางลม"],
+    "ขนาดยางหน้า":["6.50-10-10PR","6.50-10-10PR","6.50-10-10PR","6.50-10-10PR","6.50-10-10PR","6.50-10-10PR","6.50-10-10PR","6.50-10-10PR","6.50-10-10PR","6.50-10-10PR","6.50-10-10PR","6.50-10-10PR","6.50-10-10PR","6.50-10-10PR","7.00-12-12PR","7.00-12-12PR","7.00-12-12PR","7.00-12-12PR","7.00-12-12PR","7.00-12-12PR","7.00-12-12PR","7.00-12-12PR","7.00-12-12PR","7.00-12-12PR","28x9-15-12PR","28x9-15-12PR","28x9-15-12PR","28x9-15-12PR","250-15-16PR","250-15-16PR","22¼x7½-15","22¼x7½-15","22¼x7½-15","250-15-16PR","8.25-15-12PR","3.00-15-18PR","3.00-15-18PR","3.00-15-18PR","250-15-16PR","8.25-15-12PR","300-15-18PR","300-15-18PR","300-15-18PR","8.25-15-12PR","8.25-15-14PR","8.25-15-18PR","9.00-20-14PR","10.00-20-14PR","11.00-20-14PR","11.00-20-16PR","12.00-20-16PR","14.00-24-20PR","14.00-24-24PR","300-15-18PR","300-15-18PR","300-15-18PR","18x7-8-16PR","18x7-8-16PR","18x7-8-16PR","18x7-8-16PR","200/50-10","18x7-8-16PR","18x7-8-16PR","200/50-10","18x7-8-16PR","18x7-8-16PR","18x7-8-16PR","18x7-8-16PR","200/50-10","23x9-10-16PR","28x9-15-14PR"],
+    "เครื่องยนต์":["NISSAN K15","NISSAN K15","KOMATSU 4D92E","KOMATSU 4D92E","NISSAN K15","NISSAN K15","KOMATSU 4D92E","KOMATSU 4D92E","NISSAN K21","NISSAN K15","NISSAN K15","KOMATSU 4D92E","KOMATSU 4D92E","NISSAN K21","NISSAN K21","KOMATSU 4D94LE","KOMATSU 4D94LE","NISSAN K25","KOMATSU 4D98E","NISSAN K21","KOMATSU 4D94LE","KOMATSU 4D94LE","NISSAN K25","KOMATSU 4D98E","NISSAN K25","KOMATSU 4D94LE","KOMATSU 4D94LE","KOMATSU 4D98E","NISSAN K25","KOMATSU 4D98E","NISSAN K21","NISSAN K21","NISSAN K25","KOMATSU S4D95LE-3","KOMATSU S4D95LE-3","KOMATSU S4D95LE-3","KOMATSU S4D95LE-3","KOMATSU S4D95LE-3","NISSAN EBT-TB45","NISSAN EBT-TB45","NISSAN EBT-TB45","NISSAN EBT-TB45","NISSAN EBT-TB45","KOMATSU SAA4D95LE-5A","KOMATSU SAA4D95LE-5A","KOMATSU SAA4D95LE-5A","KOMATSU SAA6D107E-1","KOMATSU SAA6D107E-1","KOMATSU SAA6D107E-1","KOMATSU SAA6D107E-1","KOMATSU SAA6D107E-1","KOMATSU SAA6D107E-1","KOMATSU SAA6D107E-1","KOMATSU SAA4D95LE-5","KOMATSU SAA4D95LE-5","KOMATSU SAA4D95LE-5","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
+    "แรงม้า (KW@rpm)":["27.2@2500","27.2@2500","34.6@2450","34.6@2450","27.2@2500","27.2@2500","34.6@2450","34.6@2450","34.6@2450","27.2@2500","27.2@2500","34.6@2450","34.6@2450","34.6@2450","34.6@2450","34.2@2200","34.2@2200","42.6@2400","44.1@2450","34.6@2450","34.2@2200","34.2@2200","42.6@2400","44.1@2450","42.6@2400","34.2@2200","34.2@2200","44.1@2450","42.6@2400","44.1@2450","34.6@2450","34.6@2450","42.6@2400","58.8@2350","58.8@2350","58.8@2350","58.8@2350","58.8@2350","62.5@2400","62.5@2400","62.5@2400","62.5@2400","62.5@2400","69@2250","69@2250","69@2250","122@2200","122@2200","122@2200","122@2200","122@2200","122@2200","154@2200","50.8@2150","50.8@2150","50.8@2150","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-"],
+    "ความจุถังน้ำมัน (ลิตร)":[40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,40,40,40,76,98,98,98,98,76,98,98,98,98,140,140,140,260,260,280,280,280,400,600,105,105,105,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null],
+    "มอเตอร์ขับเคลื่อน (kW)":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"4.5x2","4.5x2","4.5x2","4.5x2","4.5x2","4.5x2","4.5x2","4.5x2","4.5x2","4.5x2","4.5x2","4.5x2","4.5x2","9.6","12"],
+    "แรงดันแบตเตอรี่ (V)":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,48,48,48,48,48,48,48,48,48,48,48,48,48,72,72],
+    "แรงดันระบบไฮดรอลิก (บาร์)":[172,172,172,172,172,172,172,172,172,172,172,172,172,172,172,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,181,206,206,206,206,206,206,206,206,206,206,181,181,181,216,216,216,216,216,206,206,206,206,206,176,176,176,176,176,176,176,176,176,176,176,176,176,181,181]
+  }
+};
+
+const models = RAW.models.map((name,i)=>({
+  name, energy: RAW.energy[i],
+  spec: Object.fromEntries(Object.keys(RAW.specs).map(k=>[k,RAW.specs[k][i]]))
+}));
+
+let curE='all', curQ='', cmpSet=new Set();
+
+function ec(e){ return e==='เบนซิน'?'gas':e==='ดีเซล'?'diesel':'electric'; }
+function el(e){ return e==='เบนซิน'?'เบนซิน':e==='ดีเซล'?'ดีเซล':'ไฟฟ้า'; }
+function fmt(v){ if(v==null||v==='-')return'—'; return typeof v==='number'?v.toLocaleString():v; }
+
+function setE(val,el_){
+  curE=val;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el_.classList.add('active');
+  render();
+}
+function doFilter(){ curQ=document.getElementById('search').value.toLowerCase(); render(); }
+
+function getFiltered(){
+  return models.filter(m=>(curE==='all'||m.energy===curE)&&(!curQ||m.name.toLowerCase().includes(curQ)));
+}
+
+function render(){
+  const list=getFiltered();
+  document.getElementById('count-lbl').textContent=`${list.length} รุ่น`;
+  const g=document.getElementById('grid');
+  if(!list.length){ g.innerHTML='<div class="empty"><div style="font-size:48px;margin-bottom:12px">🔍</div><p>ไม่พบรุ่นที่ค้นหา</p></div>'; return; }
+  g.innerHTML=list.map(m=>{
+    const e=ec(m.energy), sel=cmpSet.has(m.name);
+    return `<div class="card${sel?' selected':''}" onclick="openMdl('${m.name}')">
+      <div class="card-head">
+        <div class="model-nm">${m.name}</div>
+        <span class="ebadge ${e}">${el(m.energy)}</span>
+      </div>
+      <div class="card-specs">
+        <div class="srow"><span class="slbl">น้ำหนักยก</span><span class="sval hl">${Number(m.spec['น้ำหนักยกสูงสุด (กก.)']).toLocaleString()} กก.</span></div>
+        <div class="srow"><span class="slbl">น้ำหนักรถ</span><span class="sval">${Number(m.spec['น้ำหนักตัวรถ (กก.)']).toLocaleString()} กก.</span></div>
+        <div class="srow"><span class="slbl">วงเลี้ยว</span><span class="sval">${m.spec['วงเลี้ยว Wa (มม.)'].toLocaleString()} มม.</span></div>
+        <div class="srow"><span class="slbl">ทางลาด</span><span class="sval">${m.spec['ขึ้นทางลาด มีโหลด (%)']}%</span></div>
+      </div>
+      <div class="card-foot">
+        <button class="btn-detail" onclick="event.stopPropagation();openMdl('${m.name}')">ดูสเปคเต็ม</button>
+        <button class="btn-cmp${sel?' active':''}" onclick="event.stopPropagation();toggleCmp('${m.name}')">${sel?'✓ เลือกแล้ว':'+ เปรียบเทียบ'}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openMdl(name){
+  const m=models.find(x=>x.name===name); if(!m)return;
+  const e=ec(m.energy);
+  const secs=[
+    {t:'⚖️ น้ำหนัก & ขนาด',k:['น้ำหนักยกสูงสุด (กก.)','โหลดเซ็นเตอร์ (มม.)','น้ำหนักตัวรถ (กก.)','ฐานล้อ (มม.)','ความยาวตัวรถรวมงา (มม.)','ความกว้างตัวรถ (มม.)']},
+    {t:'🏗️ เสา & งา',k:['ความสูงเสา ลดระดับ (มม.)','ความสูงการยก (มม.)','ความสูงเสา ยืดออก (มม.)','มุมเอียงเสา หน้า/หลัง (°)','ขนาดงา หนาxกว้างxยาว (มม.)']},
+    {t:'🔄 ขับเคลื่อน & เลี้ยว',k:['วงเลี้ยว Wa (มม.)','ทางเดินรถ พาเลท 1000x1200 (มม.)','ความเร็วเดินหน้า มีโหลด','ความเร็วยก มีโหลด (มม./วิ)','ขึ้นทางลาด มีโหลด (%)']},
+    {t:'🔧 เครื่องยนต์ / มอเตอร์',k:['เครื่องยนต์','แรงม้า (KW@rpm)','ความจุถังน้ำมัน (ลิตร)','มอเตอร์ขับเคลื่อน (kW)','แรงดันแบตเตอรี่ (V)','แรงดันระบบไฮดรอลิก (บาร์)']},
+    {t:'🛞 ล้อ & ยาง',k:['ประเภทยาง','ขนาดยางหน้า']},
+  ];
+  let html=`<div class="modal-title">${m.name}</div>
+    <div class="modal-sub"><span class="ebadge ${e}">${el(m.energy)}</span><span>${m.spec['ประเภทยาง']}</span></div>`;
+  secs.forEach(s=>{
+    const rows=s.k.map(k=>{
+      const v=m.spec[k]; if(v==null||v==='-'||v===null)return'';
+      const isN=typeof v==='number';
+      return `<div class="si"><span class="si-lbl">${k}</span><span class="si-val${isN?' hl':''}">${isN?Number(v).toLocaleString():v}</span></div>`;
+    }).filter(Boolean).join('');
+    if(!rows)return;
+    html+=`<div class="sec"><div class="sec-title">${s.t}</div><div class="spec-grid">${rows}</div></div>`;
+  });
+  document.getElementById('mdl-body').innerHTML=html;
+  document.getElementById('overlay').classList.add('open');
+}
+function closeMdl(){ document.getElementById('overlay').classList.remove('open'); }
+
+function toggleCmp(name){
+  if(cmpSet.has(name)){ cmpSet.delete(name); }
+  else{ if(cmpSet.size>=4){alert('เปรียบเทียบได้สูงสุด 4 รุ่น');return;} cmpSet.add(name); }
+  document.getElementById('cmp-cnt').textContent=cmpSet.size;
+  document.getElementById('compare-badge').classList.toggle('visible',cmpSet.size>1);
+  render();
+}
+
+function openCmp(){
+  const sel=[...cmpSet].map(n=>models.find(m=>m.name===n)).filter(Boolean);
+  if(sel.length<2)return;
+  const keys=Object.keys(RAW.specs);
+  const hdrs=sel.map(m=>`<th>${m.name}<br><small style="font-weight:400;color:var(--text-dim);font-family:Sarabun">${el(m.energy)}</small></th>`).join('');
+  const rows=keys.map(k=>{
+    const vals=sel.map(m=>m.spec[k]);
+    const nums=vals.map(v=>parseFloat(v)).filter(n=>!isNaN(n));
+    const maxN=nums.length===vals.length&&nums.length>1?Math.max(...nums):null;
+    const cells=vals.map(v=>{
+      const n=parseFloat(v); const best=maxN!==null&&n===maxN;
+      return `<td class="${best?'best':''}">${v==null||v===null?'—':fmt(v)}</td>`;
+    }).join('');
+    return `<tr><td>${k}</td>${cells}</tr>`;
+  }).join('');
+  document.getElementById('cmp-body').innerHTML=`<table><thead><tr><th>สเปค</th>${hdrs}</tr></thead><tbody>${rows}</tbody></table><p style="margin-top:12px;color:var(--text-faint);font-size:11px"><span style="color:var(--gas)">■</span> ค่าสูงสุดในกลุ่ม</p>`;
+  document.getElementById('cmp-panel').classList.add('open');
+}
+function closeCmp(){ document.getElementById('cmp-panel').classList.remove('open'); }
+
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeMdl();closeCmp();} });
+render();
+</script>
+</body>
+</html>
