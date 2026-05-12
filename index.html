@@ -1,267 +1,345 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KOMATSU Forklift Live Catalog</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#0a0c0f;--bg2:#111418;--bg3:#181c22;--border:#252a32;--border2:#3a424f;--acc:#f5a623;--text:#e8ecf2;--dim:#8a95a3;--faint:#4a5360;--gas:#4ade80;--diesel:#60a5fa;--elec:#a78bfa;--red:#f87171;}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;font-size:16px;min-height:100vh;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOMATSU Forklift Catalog (Real-time)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0c0f; --bg2: #111418; --bg3: #181c22;
+            --border: #252a32; --border2: #3a424f;
+            --acc: #f5a623; --text: #e8ecf2; --dim: #8a95a3;
+            --faint: #4a5360; --gas: #4ade80; --diesel: #60a5fa;
+            --elec: #a78bfa; --red: #f87171;
+        }
 
-/* HEADER & LOGO */
-header{position:sticky;top:0;z-index:100;background:rgba(10,12,15,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;gap:16px;height:64px;}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;color:var(--acc);}
-#cmp-badge{display:none;background:var(--acc);color:#000;font-weight:700;font-size:14px;padding:8px 18px;border-radius:20px;cursor:pointer;border:none;align-items:center;gap:8px;margin-left:auto;}
-#cmp-badge.on{display:inline-flex;}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        /* ข้อ 6: ขยายขนาดตัวอักษรพื้นฐาน */
+        body { 
+            background: var(--bg); color: var(--text); 
+            font-family: 'Sarabun', sans-serif; font-size: 16px; 
+            min-height: 100vh; overflow-x: hidden; 
+        }
 
-/* SEARCH & HISTORY */
-.fbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:15px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:15px;}
-.sw{position:relative;flex:1;min-width:280px;max-width:400px;}
-#search{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Sarabun',sans-serif;font-size:16px;padding:10px 12px 10px 40px;outline:none;}
-.sw svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.4;z-index:2;}
-#search-history{position:absolute;top:100%;left:0;right:0;background:var(--bg3);border:1px solid var(--border2);border-radius:0 0 8px 8px;display:none;z-index:50;box-shadow:0 10px 20px rgba(0,0,0,.5);}
-.hist-item{padding:12px 15px;cursor:pointer;border-bottom:1px solid var(--border);font-size:15px;color:var(--dim);}
-.hist-item:hover{background:var(--bg2);color:var(--acc);}
+        header { 
+            position: sticky; top: 0; z-index: 100; 
+            background: rgba(10, 12, 15, 0.95); backdrop-filter: blur(12px); 
+            border-bottom: 1px solid var(--border); padding: 0 20px; 
+            display: flex; align-items: center; gap: 16px; height: 64px; 
+        }
 
-/* FILTER CHIPS */
-.chips{display:flex;flex-wrap:wrap;gap:10px;}
-.chip{padding:8px 20px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--dim);font-size:15px;cursor:pointer;}
-.chip.on{background:var(--acc);border-color:var(--acc);color:#000;font-weight:600;}
+        .logo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 3px; color: var(--acc); }
+        .logo span { color: var(--dim); font-size: 14px; font-family: 'Sarabun', sans-serif; letter-spacing: 1px; }
 
-/* CARD DESIGN */
-.gw{padding:25px;}
-#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;}
-.card{background:#1a1f28;border:1px solid var(--border);border-radius:14px;padding:22px;cursor:pointer;transition:all .2s;}
-.card:hover{transform:translateY(-4px);border-color:var(--border2);box-shadow:0 10px 25px rgba(0,0,0,0.5);}
-.card.sel{border-color:var(--acc);background:rgba(245,166,35,.05);}
+        #cmp-badge { 
+            display: none; background: var(--acc); color: #000; font-weight: 700; 
+            font-size: 14px; padding: 8px 16px; border-radius: 20px; cursor: pointer; 
+            border: none; margin-left: auto; align-items: center; gap: 8px; 
+        }
+        #cmp-badge.on { display: inline-flex; }
 
-.card-model{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;color:var(--acc);margin-bottom:2px;}
-.card-energy{font-size:15px;color:var(--text);font-weight:500;margin-bottom:2px;display:block;}
-.card-type{font-size:14px;color:var(--dim);margin-bottom:18px;display:block;}
+        /* Filter & Search */
+        .fbar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 16px 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+        .sw { position: relative; flex: 1; min-width: 280px; max-width: 400px; }
+        #search { 
+            width: 100%; background: var(--bg3); border: 1px solid var(--border); 
+            border-radius: 8px; color: var(--text); font-family: 'Sarabun', sans-serif; 
+            font-size: 16px; padding: 10px 12px 10px 40px; outline: none; 
+        }
+        .sw svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: .4; }
 
-.spec-item{margin-bottom:8px; display:flex; justify-content:space-between; align-items:baseline;}
-.spec-label{font-size:13px;color:var(--faint);}
-.spec-value{font-size:15px;color:var(--dim);font-family:'JetBrains Mono',monospace;font-weight:500;text-align:right;}
+        /* Search History List */
+        #search-history {
+            position: absolute; top: 100%; left: 0; right: 0; 
+            background: var(--bg3); border: 1px solid var(--border2); 
+            border-radius: 0 0 8px 8px; z-index: 50; display: none;
+        }
+        .history-item { padding: 10px 15px; cursor: pointer; border-bottom: 1px solid var(--border); font-size: 14px; }
+        .history-item:hover { background: var(--border); color: var(--acc); }
 
-.card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:15px;padding-top:15px;border-top:1px solid var(--border);}
-.btn-text{color:var(--dim);font-size:14px;text-decoration:underline;cursor:pointer;background:none;border:none;}
-.btn-cmp{background:transparent;border:1px solid var(--border2);color:var(--dim);padding:5px 12px;border-radius:6px;font-size:13px;cursor:pointer;}
-.btn-cmp.on{background:var(--acc);border-color:var(--acc);color:#000;font-weight:700;}
+        .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+        .chip { padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border2); background: transparent; color: var(--dim); font-size: 14px; cursor: pointer; }
+        .chip.on { background: var(--acc); color: #000; font-weight: 600; border-color: var(--acc); }
 
-/* MODAL & FREEZE HEADER */
-.ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px;}
-.ov.open{display:flex;}
-.mdl{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:800px;max-height:85vh;overflow-y:auto;position:relative;}
-.mdl-header{position:sticky;top:0;background:var(--bg2);padding:20px 28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;z-index:10;box-shadow:0 4px 10px rgba(0,0,0,0.3);}
-.mdl-content{padding:28px;}
+        /* Grid */
+        .gw { padding: 20px; }
+        #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
 
-/* COMPARE WINDOW */
-#cp{position:fixed;inset:0;z-index:300;background:var(--bg);overflow-y:auto;transform:translateX(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);}
-#cp.open{transform:none;}
-.cph{position:sticky;top:0;z-index:10;background:var(--bg2);padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:15px;box-shadow:0 4px 10px rgba(0,0,0,0.3);}
-.btn-clear{background:transparent;border:1px solid var(--red);color:var(--red);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:14px;margin-left:auto;}
+        /* Card */
+        .card { background: #1a1f28; border: 1px solid var(--border); border-radius: 12px; padding: 18px; cursor: pointer; position: relative; }
+        .card.sel { border-color: var(--acc); box-shadow: 0 0 15px rgba(245,166,35,0.2); }
+        .mn { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 600; }
+        .eb { font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 700; }
+        .eb.gas { background: rgba(74,222,128,.1); color: var(--gas); }
+        .eb.diesel { background: rgba(96,165,250,.1); color: var(--diesel); }
+        .eb.elec { background: rgba(167,139,250,.1); color: var(--elec); }
 
-table{border-collapse:collapse;width:100%;min-width:600px;}
-th,td{border:1px solid var(--border);padding:14px 18px;font-family:'JetBrains Mono',monospace;font-size:14px;}
-th{background:var(--bg3);color:var(--acc);position:sticky;top:0;text-align:left;}
-td:first-child{font-family:'Sarabun',sans-serif;color:var(--dim);width:260px;background:var(--bg2);}
+        /* ข้อ 3: Modal Header Fixed */
+        .ov { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 20px; }
+        .ov.open { display: flex; }
+        .mdl { 
+            background: var(--bg2); border: 1px solid var(--border2); border-radius: 16px; 
+            width: 100%; max-width: 800px; height: 90vh; display: flex; flex-direction: column; 
+            overflow: hidden; 
+        }
+        .mdl-head { 
+            padding: 20px 28px; border-bottom: 1px solid var(--border); 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: var(--bg2); position: sticky; top: 0; 
+        }
+        .mdl-body { padding: 28px; overflow-y: auto; flex: 1; }
+        .mc { background: var(--bg3); border: 1px solid var(--border); color: var(--dim); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 20px; }
 
-#loading{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
-.spinner{width:40px;height:40px;border:4px solid var(--border);border-top-color:var(--acc);border-radius:50%;animation:spin 1s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg)}}
-</style>
+        /* Compare View */
+        #cp { position: fixed; inset: 0; z-index: 300; background: var(--bg); display: none; flex-direction: column; }
+        #cp.open { display: flex; }
+        .cph { padding: 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 15px; }
+        
+        /* ข้อ 2: ปุ่ม Clear */
+        .btn-clear { background: var(--red); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-left: 10px; }
+        
+        .cpb { flex: 1; overflow: auto; padding: 20px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid var(--border); padding: 12px; font-size: 14px; text-align: left; }
+        th { background: var(--bg3); color: var(--acc); position: sticky; top: 0; }
+        .best { color: var(--gas); font-weight: bold; background: rgba(74,222,128,0.05); }
+
+        .loader { text-align: center; padding: 50px; font-size: 20px; color: var(--acc); }
+    </style>
 </head>
 <body>
 
-<div id="loading"><div class="spinner"></div><p style="font-size:18px">กำลังอัปเดตสเปคล่าสุด...</p></div>
-
 <header>
-  <div class="logo">KOMATSU <span>LIVE CATALOG</span></div>
-  <button id="cmp-badge" onclick="openCp()">⚖ <span id="cc">0</span> รุ่น — เปรียบเทียบ</button>
+    <div class="logo" onclick="goHome()" style="cursor:pointer">KOMATSU <span>FORKLIFT CATALOG</span></div>
+    <button id="cmp-badge" onclick="openCp()">⚖ <span id="cc">0</span> รุ่น — เปรียบเทียบ</button>
 </header>
 
 <div class="fbar">
-  <div class="sw">
-    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input id="search" type="text" placeholder="ค้นหาชื่อรุ่น..." oninput="doF()" onfocus="showHist()" onblur="hideHist()">
-    <div id="search-history"></div>
-  </div>
-  <div class="chips">
-    <button class="chip on" onclick="setE('all',this)">ทั้งหมด</button>
-    <button class="chip" onclick="setE('เบนซิน',this)">⛽ เบนซิน</button>
-    <button class="chip" onclick="setE('ดีเซล',this)">🛢️ ดีเซล</button>
-    <button class="chip" onclick="setE('ไฟฟ้า',this)">⚡ ไฟฟ้า</button>
-  </div>
-  <span id="cnt" style="margin-left:auto; color:var(--faint); font-weight:600;">—</span>
-</div>
-
-<div class="gw"><div id="grid"></div></div>
-
-<div class="ov" id="ov" onclick="if(event.target===this)closeMdl()">
-  <div class="mdl">
-    <div class="mdl-header">
-      <div id="mt" style="font-family:'JetBrains Mono'; font-size:26px; color:var(--acc)">-</div>
-      <button onclick="closeMdl()" style="background:var(--bg3); border:1px solid var(--border); color:var(--dim); padding:8px 16px; border-radius:8px; cursor:pointer;">✕ ปิดสเปค</button>
+    <div class="sw">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="search" type="text" placeholder="ค้นหารุ่น..." oninput="doF()" onfocus="showHistory()">
+        <!-- ข้อ 5: Search History -->
+        <div id="search-history"></div>
     </div>
-    <div class="mdl-content" id="mb"></div>
-  </div>
+    <div class="chips">
+        <button class="chip on" onclick="setE('all',this)">ทั้งหมด</button>
+        <button class="chip" onclick="setE('เบนซิน',this)">⛽ เบนซิน</button>
+        <button class="chip" onclick="setE('ดีเซล',this)">🛢️ ดีเซล</button>
+        <button class="chip" onclick="setE('ไฟฟ้า',this)">⚡ ไฟฟ้า</button>
+    </div>
+    <span id="cnt" style="margin-left:auto; font-size: 14px; color: var(--faint);">กำลังโหลดข้อมูล...</span>
 </div>
 
+<div class="gw"><div id="grid"><div class="loader">กำลังดึงข้อมูลล่าสุดจาก Google Sheets...</div></div></div>
+
+<!-- Modal -->
+<div class="ov" id="ov" onclick="if(event.target===this)closeMdl()">
+    <div class="mdl">
+        <div class="mdl-head">
+            <div id="mdl-title-area"></div>
+            <button class="mc" onclick="closeMdl()">✕</button>
+        </div>
+        <div class="mdl-body" id="mb"></div>
+    </div>
+</div>
+
+<!-- Compare -->
 <div id="cp">
-  <div class="cph">
-    <div class="logo" style="font-size:20px;">SPEC COMPARISON</div>
-    <button class="btn-clear" onclick="clearCmp()">🧹 ล้างข้อมูลทั้งหมด</button>
-    <button onclick="closeCp()" style="background:var(--bg3); border:1px solid var(--border); color:var(--dim); padding:8px 16px; border-radius:8px; cursor:pointer;">✕</button>
-  </div>
-  <div style="padding:24px; overflow-x:auto;"><div id="cpb"></div></div>
+    <div class="cph">
+        <div class="logo">COMPARISON</div>
+        <!-- ข้อ 2: ปุ่มเคลียร์และกลับหน้าหลัก -->
+        <button class="btn-clear" onclick="clearCmp()">เคลียร์ข้อมูล & กลับหน้าแรก</button>
+        <button class="mc" style="margin-left:auto" onclick="closeCp()">✕ ปิด</button>
+    </div>
+    <div class="cpb" id="cpb-table"></div>
 </div>
 
 <script>
+// ข้อ 1 & 4: ดึงข้อมูลจาก Google Sheets (Published JSON)
 const SHEET_ID = '16A8YKMB1zLaURJH0cjZHR-MXdaIca_5kYRuilNIH-nw';
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
 
-let MS = [];
+let RAW_DATA = [];
 let curE = 'all', curQ = '', cmpSet = new Set();
-let history = JSON.parse(localStorage.getItem('kf_history_v5') || '[]');
+let history = JSON.parse(localStorage.getItem('forklift_history') || '[]');
 
-async function initData() {
-  try {
-    const res = await fetch(`${SHEET_URL}&t=${Date.now()}`, { cache: 'no-store' });
-    const text = await res.text();
-    const json = JSON.parse(text.substr(47).slice(0, -2));
-    
-    const rows = json.table.rows;
-    const cols = json.table.cols.map(c => c.label || "");
+async function loadData() {
+    try {
+        const res = await fetch(SHEET_URL);
+        const text = await res.text();
+        const json = JSON.parse(text.substr(47).slice(0, -2)); // Clean Google Wrapper
+        
+        const cols = json.table.cols.map(c => c.label).filter(l => l !== "");
+        const rows = json.table.rows;
 
-    MS = rows.map((r, idx) => {
-      const specMap = {};
-      r.c.forEach((cell, i) => { if (cols[i]) specMap[cols[i]] = cell ? (cell.f || cell.v || "-") : "-"; });
-
-      // ดึงข้อมูลตามชื่อหัวข้อคอลัมน์จาก Google Sheet
-      return {
-        modelName: specMap['Model'] || specMap['รุ่น'] || r.c[0]?.v || "-",
-        energy: specMap['ประเภทพลังงาน'] || "-",
-        forkliftType: specMap['ประเภทของรถยก'] || "-",
-        capacity: specMap['น้ำหนักของสัมภาระที่ยกได้สูงสุด(Q)กก.'] || "-",
-        weight: specMap['น้ำหนักตัวรถ กก.'] || "-",
-        turning: specMap['วงเลี้ยว (Wa) มม.'] || "-",
-        grade: specMap['ความสามารถในการขึ้นทางลาดชัน มีสัมภาระ %'] || "-",
-        fullSpec: specMap
-      };
-    }).filter(m => m.modelName && m.modelName !== "-" && m.modelName !== "Model");
-
-    document.getElementById('loading').style.display = 'none';
-    render();
-  } catch (e) {
-    document.getElementById('loading').innerHTML = `<p style="color:var(--red)">ไม่สามารถดึงข้อมูลได้ โปรดลองอีกครั้ง</p>`;
-  }
+        RAW_DATA = rows.map(r => {
+            let obj = {};
+            r.c.forEach((cell, idx) => {
+                if(cols[idx]) obj[cols[idx]] = cell ? cell.v : '-';
+            });
+            return {
+                name: obj['รุ่น'] || obj['Model'] || 'Unknown',
+                energy: obj['ประเภทพลังงาน'] || '-',
+                spec: obj
+            };
+        });
+        render();
+    } catch (e) {
+        document.getElementById('grid').innerHTML = `<div class="loader" style="color:var(--red)">ไม่สามารถโหลดข้อมูลได้ กรุณาตรวจสอบการ Publish Google Sheets</div>`;
+    }
 }
 
 function render() {
-  const list = MS.filter(m => (curE === 'all' || m.energy === curE) && (!curQ || m.modelName.toLowerCase().includes(curQ)));
-  document.getElementById('cnt').textContent = list.length + ' รุ่น';
-  const g = document.getElementById('grid');
-  
-  g.innerHTML = list.map(m => {
-    const isSel = cmpSet.has(m.modelName);
-    return `
-      <div class="card ${isSel ? 'sel' : ''}" onclick="openMdl('${m.modelName}')">
-        <div class="card-model">Model คือ ${m.modelName}</div>
-        <div class="card-energy">ประเภทพลังงาน คือ ${m.energy}</div>
-        <div class="card-type">ประเภทของรถยก คือ ${m.forkliftType}</div>
-        
-        <div class="spec-item">
-          <span class="spec-label">น้ำหนักยก</span>
-          <span class="spec-value">${m.capacity} กก.</span>
-        </div>
-        <div class="spec-item">
-          <span class="spec-label">น้ำหนักรถ</span>
-          <span class="spec-value">${m.weight} กก.</span>
-        </div>
-        <div class="spec-item">
-          <span class="spec-label">วงเลี้ยว</span>
-          <span class="spec-value">${m.turning} มม.</span>
-        </div>
-        <div class="spec-item">
-          <span class="spec-label">ทางลาด</span>
-          <span class="spec-value">${m.grade} %</span>
-        </div>
-        
-        <div class="card-footer">
-          <button class="btn-text">ดูสเปคเต็ม</button>
-          <button class="btn-cmp ${isSel ? 'on' : ''}" onclick="event.stopPropagation();togCmp('${m.modelName}')">
-            ${isSel ? '✓ เลือกแล้ว' : '+ เปรียบเทียบ'}
-          </button>
-        </div>
-      </div>
-    `;
-  }).join('');
+    const filtered = RAW_DATA.filter(m => 
+        (curE === 'all' || m.energy === curE) && 
+        (!curQ || m.name.toLowerCase().includes(curQ.toLowerCase()))
+    );
+    
+    document.getElementById('cnt').textContent = filtered.length + ' รุ่น';
+    const g = document.getElementById('grid');
+    
+    g.innerHTML = filtered.map(m => {
+        const sel = cmpSet.has(m.name);
+        return `
+            <div class="card ${sel ? 'sel' : ''}" onclick="openMdl('${m.name}')">
+                <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+                    <div class="mn">${m.name}</div>
+                    <span class="eb ${getEC(m.energy)}">${m.energy}</span>
+                </div>
+                <div style="font-size:14px; color:var(--dim)">
+                    <p>ยกหนัก: ${m.spec['น้ำหนักของสัมภาระที่ยกได้สูงสุด(Q)กก.'] || '-'} กก.</p>
+                    <p>วงเลี้ยว: ${m.spec['วงเลี้ยว (Wa) มม.'] || '-'} มม.</p>
+                </div>
+                <div style="margin-top:15px; display:flex; gap:10px;">
+                    <button class="chip" style="flex:1" onclick="event.stopPropagation(); togCmp('${m.name}')">
+                        ${sel ? '✓ เลือกแล้ว' : '+ เปรียบเทียบ'}
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
-// ข้อ 4: Search History
+function getEC(e) { return e === 'เบนซิน' ? 'gas' : e === 'ดีเซล' ? 'diesel' : 'elec'; }
+
+// ข้อ 5: History Logic
+function showHistory() {
+    if (history.length === 0) return;
+    const hBox = document.getElementById('search-history');
+    hBox.innerHTML = history.map(h => `<div class="history-item" onclick="useHistory('${h}')">🕒 ${h}</div>`).join('');
+    hBox.style.display = 'block';
+}
+
+function useHistory(val) {
+    document.getElementById('search').value = val;
+    curQ = val;
+    document.getElementById('search-history').style.display = 'none';
+    render();
+}
+
 function doF() {
-  curQ = document.getElementById('search').value.toLowerCase();
-  if (curQ.length > 2 && !history.includes(curQ)) {
-    history.unshift(curQ); history = history.slice(0, 5);
-    localStorage.setItem('kf_history_v5', JSON.stringify(history));
-  }
-  render();
+    curQ = document.getElementById('search').value;
+    if (curQ.length > 2 && !history.includes(curQ)) {
+        history.unshift(curQ);
+        history = history.slice(0, 5);
+        localStorage.setItem('forklift_history', JSON.stringify(history));
+    }
+    render();
 }
-function showHist() {
-  if (history.length === 0) return;
-  const hDiv = document.getElementById('search-history');
-  hDiv.innerHTML = history.map(h => `<div class="hist-item" onmousedown="setSearch('${h}')">🕒 ${h}</div>`).join('');
-  hDiv.style.display = 'block';
-}
-function hideHist() { setTimeout(() => document.getElementById('search-history').style.display = 'none', 200); }
-function setSearch(val) { document.getElementById('search').value = val; curQ = val.toLowerCase(); render(); }
 
 function setE(v, el) {
-  curE = v;
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
-  el.classList.add('on');
-  render();
+    curE = v;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+    el.classList.add('on');
+    render();
 }
 
-// ข้อ 2: Modal with Sticky Header
+// Modal
 function openMdl(name) {
-  const m = MS.find(x => x.modelName === name);
-  document.getElementById('mt').textContent = m.modelName;
-  document.getElementById('mb').innerHTML = Object.keys(m.fullSpec).map(k => `
-    <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--bg3); gap:20px;">
-      <span style="color:var(--dim); font-size:16px;">${k}</span>
-      <span style="font-family:'JetBrains Mono'; color:var(--text); text-align:right;">${m.fullSpec[k]}</span>
-    </div>
-  `).join('');
-  document.getElementById('ov').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeMdl() { document.getElementById('ov').classList.remove('open'); document.body.style.overflow = 'auto'; }
+    const m = RAW_DATA.find(x => x.name === name);
+    if (!m) return;
+    
+    document.getElementById('mdl-title-area').innerHTML = `
+        <div class="mn" style="font-size:24px; color:var(--acc)">${m.name}</div>
+        <div style="font-size:14px; color:var(--dim)">${m.energy} | Komatsu Forklift</div>
+    `;
 
-// ข้อ 1: Clear & Comparison logic
-function togCmp(name) {
-  if (cmpSet.has(name)) cmpSet.delete(name);
-  else { if (cmpSet.size >= 4) return alert('เปรียบเทียบได้สูงสุด 4 รุ่น'); cmpSet.add(name); }
-  document.getElementById('cc').textContent = cmpSet.size;
-  document.getElementById('cmp-badge').classList.toggle('on', cmpSet.size > 0);
-  render();
+    let html = "";
+    Object.entries(m.spec).forEach(([k, v]) => {
+        if(v !== '-') {
+            html += `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border)">
+                <span style="color:var(--dim)">${k}</span>
+                <span style="font-weight:500">${v}</span>
+            </div>`;
+        }
+    });
+
+    document.getElementById('mb').innerHTML = html;
+    document.getElementById('ov').classList.add('open');
 }
-function clearCmp() { cmpSet.clear(); document.getElementById('cc').textContent = '0'; document.getElementById('cmp-badge').classList.remove('on'); closeCp(); render(); }
+
+function closeMdl() { document.getElementById('ov').classList.remove('open'); }
+
+// Compare Logic
+function togCmp(name) {
+    if (cmpSet.has(name)) cmpSet.delete(name);
+    else if (cmpSet.size < 4) cmpSet.add(name);
+    else alert("เปรียบเทียบได้สูงสุด 4 รุ่น");
+    
+    document.getElementById('cc').textContent = cmpSet.size;
+    document.getElementById('cmp-badge').classList.toggle('on', cmpSet.size > 0);
+    render();
+}
 
 function openCp() {
-  const sel = [...cmpSet].map(n => MS.find(m => m.modelName === n));
-  const keys = Object.keys(MS[0].fullSpec);
-  let h = `<table><tr><th style="background:var(--bg3)">หัวข้อสเปค / รุ่น</th>${sel.map(m => `<th>${m.modelName}</th>`).join('')}</tr>`;
-  h += keys.map(k => `<tr><td>${k}</td>${sel.map(m => `<td>${m.fullSpec[k]}</td>`).join('')}</tr>`).join('');
-  h += `</table>`;
-  document.getElementById('cpb').innerHTML = h;
-  document.getElementById('cp').classList.add('open');
+    const sel = [...cmpSet].map(n => RAW_DATA.find(m => m.name === n));
+    const keys = Object.keys(RAW_DATA[0].spec);
+    
+    let html = `<table><thead><tr><th>สเปค</th>`;
+    sel.forEach(s => html += `<th>${s.name}</th>`);
+    html += `</tr></thead><tbody>`;
+    
+    keys.forEach(k => {
+        html += `<tr><td style="color:var(--dim)">${k}</td>`;
+        sel.forEach(s => html += `<td>${s.spec[k] || '-'}</td>`);
+        html += `</tr>`;
+    });
+    
+    html += `</tbody></table>`;
+    document.getElementById('cpb-table').innerHTML = html;
+    document.getElementById('cp').classList.add('open');
 }
+
 function closeCp() { document.getElementById('cp').classList.remove('open'); }
 
-initData();
+// ข้อ 2: Clear และกลับหน้า Home
+function clearCmp() {
+    cmpSet.clear();
+    document.getElementById('cc').textContent = 0;
+    document.getElementById('cmp-badge').classList.remove('on');
+    closeCp();
+    goHome();
+}
+
+function goHome() {
+    curE = 'all';
+    curQ = '';
+    document.getElementById('search').value = '';
+    document.querySelectorAll('.chip').forEach(c => {
+        c.classList.toggle('on', c.textContent === 'ทั้งหมด');
+    });
+    render();
+}
+
+// Close history on click outside
+document.onclick = (e) => {
+    if (!e.target.closest('.sw')) document.getElementById('search-history').style.display = 'none';
+};
+
+// Start
+loadData();
 </script>
 </body>
 </html>
