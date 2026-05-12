@@ -131,8 +131,8 @@ async function initData() {
     const text = await res.text();
     const json = JSON.parse(text.substr(47).slice(0, -2));
     
-    const rows = json.table.cols;
-    const cols = json.table.rows.map(c => c.label || "");
+    const rows = json.table.rows;
+    const cols = json.table.cols.map(c => c.label || "");
 
     // Fixed Mapping Logic: ตรวจสอบคอลัมน์ทีละช่อง
     MS = rows.map((r, rowIndex) => {
