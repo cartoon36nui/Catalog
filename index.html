@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOMATSU Forklift Catalog (Real-time)</title>
+    <title>KOMATSU Forklift Catalog (Fixed)</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -15,22 +15,15 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        /* ข้อ 6: ขยายขนาดตัวอักษรพื้นฐาน */
-        body { 
-            background: var(--bg); color: var(--text); 
-            font-family: 'Sarabun', sans-serif; font-size: 16px; 
-            min-height: 100vh; overflow-x: hidden; 
-        }
+        body { background: var(--bg); color: var(--text); font-family: 'Sarabun', sans-serif; font-size: 16px; min-height: 100vh; }
 
         header { 
-            position: sticky; top: 0; z-index: 100; 
-            background: rgba(10, 12, 15, 0.95); backdrop-filter: blur(12px); 
-            border-bottom: 1px solid var(--border); padding: 0 20px; 
-            display: flex; align-items: center; gap: 16px; height: 64px; 
+            position: sticky; top: 0; z-index: 100; background: rgba(10, 12, 15, 0.95); 
+            backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); 
+            padding: 0 20px; display: flex; align-items: center; height: 64px; 
         }
 
-        .logo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 3px; color: var(--acc); }
+        .logo { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 3px; color: var(--acc); cursor: pointer; }
         .logo span { color: var(--dim); font-size: 14px; font-family: 'Sarabun', sans-serif; letter-spacing: 1px; }
 
         #cmp-badge { 
@@ -40,87 +33,83 @@
         }
         #cmp-badge.on { display: inline-flex; }
 
-        /* Filter & Search */
         .fbar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 16px 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
         .sw { position: relative; flex: 1; min-width: 280px; max-width: 400px; }
         #search { 
             width: 100%; background: var(--bg3); border: 1px solid var(--border); 
-            border-radius: 8px; color: var(--text); font-family: 'Sarabun', sans-serif; 
-            font-size: 16px; padding: 10px 12px 10px 40px; outline: none; 
+            border-radius: 8px; color: var(--text); font-size: 16px; padding: 10px 12px 10px 40px; outline: none; 
         }
         .sw svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: .4; }
 
-        /* Search History List */
         #search-history {
-            position: absolute; top: 100%; left: 0; right: 0; 
-            background: var(--bg3); border: 1px solid var(--border2); 
-            border-radius: 0 0 8px 8px; z-index: 50; display: none;
+            position: absolute; top: 105%; left: 0; right: 0; background: var(--bg3); 
+            border: 1px solid var(--border2); border-radius: 8px; z-index: 50; display: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
-        .history-item { padding: 10px 15px; cursor: pointer; border-bottom: 1px solid var(--border); font-size: 14px; }
+        .history-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid var(--border); font-size: 14px; }
         .history-item:hover { background: var(--border); color: var(--acc); }
 
         .chips { display: flex; flex-wrap: wrap; gap: 8px; }
         .chip { padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border2); background: transparent; color: var(--dim); font-size: 14px; cursor: pointer; }
         .chip.on { background: var(--acc); color: #000; font-weight: 600; border-color: var(--acc); }
 
-        /* Grid */
         .gw { padding: 20px; }
-        #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+        #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
 
-        /* Card */
-        .card { background: #1a1f28; border: 1px solid var(--border); border-radius: 12px; padding: 18px; cursor: pointer; position: relative; }
-        .card.sel { border-color: var(--acc); box-shadow: 0 0 15px rgba(245,166,35,0.2); }
+        .card { 
+            background: #1a1f28; border: 1px solid var(--border); border-radius: 12px; 
+            padding: 20px; cursor: pointer; position: relative; transition: all 0.2s;
+        }
+        .card:hover { transform: translateY(-3px); border-color: var(--border2); }
+        .card.sel { border-color: var(--acc); background: rgba(245,166,35,0.05); }
+        .card.sel::after { content: '✓ Selected'; position: absolute; top: 10px; right: 10px; font-size: 10px; color: var(--acc); font-weight: bold; }
+
         .mn { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 600; }
-        .eb { font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 700; }
+        .eb { font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
         .eb.gas { background: rgba(74,222,128,.1); color: var(--gas); }
         .eb.diesel { background: rgba(96,165,250,.1); color: var(--diesel); }
         .eb.elec { background: rgba(167,139,250,.1); color: var(--elec); }
 
-        /* ข้อ 3: Modal Header Fixed */
+        /* Modal Settings */
         .ov { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 20px; }
         .ov.open { display: flex; }
         .mdl { 
             background: var(--bg2); border: 1px solid var(--border2); border-radius: 16px; 
-            width: 100%; max-width: 800px; height: 90vh; display: flex; flex-direction: column; 
-            overflow: hidden; 
+            width: 100%; max-width: 800px; height: 90vh; display: flex; flex-direction: column; overflow: hidden; 
         }
         .mdl-head { 
-            padding: 20px 28px; border-bottom: 1px solid var(--border); 
-            display: flex; justify-content: space-between; align-items: center; 
-            background: var(--bg2); position: sticky; top: 0; 
+            padding: 20px 28px; border-bottom: 1px solid var(--border); background: var(--bg2); 
+            display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10;
         }
-        .mdl-body { padding: 28px; overflow-y: auto; flex: 1; }
-        .mc { background: var(--bg3); border: 1px solid var(--border); color: var(--dim); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 20px; }
+        .mdl-body { padding: 20px 28px; overflow-y: auto; flex: 1; }
+        .mc { background: var(--bg3); border: 1px solid var(--border); color: var(--dim); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 18px; }
 
-        /* Compare View */
+        /* Comparison */
         #cp { position: fixed; inset: 0; z-index: 300; background: var(--bg); display: none; flex-direction: column; }
         #cp.open { display: flex; }
-        .cph { padding: 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 15px; }
-        
-        /* ข้อ 2: ปุ่ม Clear */
-        .btn-clear { background: var(--red); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-left: 10px; }
+        .cph { padding: 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 15px; background: var(--bg2); }
+        .btn-clear { background: var(--red); color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-family: 'Sarabun'; }
         
         .cpb { flex: 1; overflow: auto; padding: 20px; }
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid var(--border); padding: 12px; font-size: 14px; text-align: left; }
-        th { background: var(--bg3); color: var(--acc); position: sticky; top: 0; }
-        .best { color: var(--gas); font-weight: bold; background: rgba(74,222,128,0.05); }
+        table { border-collapse: collapse; width: 100%; min-width: 800px; }
+        th, td { border: 1px solid var(--border); padding: 14px; font-size: 14px; text-align: left; }
+        th { background: var(--bg3); color: var(--acc); position: sticky; top: 0; z-index: 5; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
 
-        .loader { text-align: center; padding: 50px; font-size: 20px; color: var(--acc); }
+        .loader { text-align: center; padding: 100px; font-size: 18px; color: var(--acc); }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo" onclick="goHome()" style="cursor:pointer">KOMATSU <span>FORKLIFT CATALOG</span></div>
+    <div class="logo" onclick="goHome()">KOMATSU <span>FORKLIFT CATALOG</span></div>
     <button id="cmp-badge" onclick="openCp()">⚖ <span id="cc">0</span> รุ่น — เปรียบเทียบ</button>
 </header>
 
 <div class="fbar">
     <div class="sw">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input id="search" type="text" placeholder="ค้นหารุ่น..." oninput="doF()" onfocus="showHistory()">
-        <!-- ข้อ 5: Search History -->
+        <input id="search" type="text" placeholder="พิมพ์ชื่อรุ่น..." oninput="doF()" onfocus="showHistory()">
         <div id="search-history"></div>
     </div>
     <div class="chips">
@@ -129,92 +118,91 @@
         <button class="chip" onclick="setE('ดีเซล',this)">🛢️ ดีเซล</button>
         <button class="chip" onclick="setE('ไฟฟ้า',this)">⚡ ไฟฟ้า</button>
     </div>
-    <span id="cnt" style="margin-left:auto; font-size: 14px; color: var(--faint);">กำลังโหลดข้อมูล...</span>
+    <span id="cnt" style="margin-left:auto; font-size: 14px; color: var(--faint);">กำลังโหลด...</span>
 </div>
 
-<div class="gw"><div id="grid"><div class="loader">กำลังดึงข้อมูลล่าสุดจาก Google Sheets...</div></div></div>
+<div class="gw"><div id="grid"><div class="loader">กำลังดึงข้อมูลล่าสุด...</div></div></div>
 
-<!-- Modal -->
+<!-- Modal Detail -->
 <div class="ov" id="ov" onclick="if(event.target===this)closeMdl()">
     <div class="mdl">
         <div class="mdl-head">
             <div id="mdl-title-area"></div>
-            <button class="mc" onclick="closeMdl()">✕</button>
+            <button class="mc" onclick="closeMdl()">✕ ปิดหน้าต่าง</button>
         </div>
         <div class="mdl-body" id="mb"></div>
     </div>
 </div>
 
-<!-- Compare -->
+<!-- Comparison View -->
 <div id="cp">
     <div class="cph">
-        <div class="logo">COMPARISON</div>
-        <!-- ข้อ 2: ปุ่มเคลียร์และกลับหน้าหลัก -->
-        <button class="btn-clear" onclick="clearCmp()">เคลียร์ข้อมูล & กลับหน้าแรก</button>
+        <div class="logo">SPEC COMPARISON</div>
+        <button class="btn-clear" onclick="clearCmp()">ล้างข้อมูล & กลับหน้าหลัก</button>
         <button class="mc" style="margin-left:auto" onclick="closeCp()">✕ ปิด</button>
     </div>
     <div class="cpb" id="cpb-table"></div>
 </div>
 
 <script>
-// ข้อ 1 & 4: ดึงข้อมูลจาก Google Sheets (Published JSON)
 const SHEET_ID = '16A8YKMB1zLaURJH0cjZHR-MXdaIca_5kYRuilNIH-nw';
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
 
 let RAW_DATA = [];
 let curE = 'all', curQ = '', cmpSet = new Set();
-let history = JSON.parse(localStorage.getItem('forklift_history') || '[]');
+let history = JSON.parse(localStorage.getItem('fork_history') || '[]');
 
 async function loadData() {
     try {
         const res = await fetch(SHEET_URL);
         const text = await res.text();
-        const json = JSON.parse(text.substr(47).slice(0, -2)); // Clean Google Wrapper
+        const json = JSON.parse(text.substring(47).slice(0, -2));
         
-        const cols = json.table.cols.map(c => c.label).filter(l => l !== "");
-        const rows = json.table.rows;
-
-        RAW_DATA = rows.map(r => {
-            let obj = {};
-            r.c.forEach((cell, idx) => {
-                if(cols[idx]) obj[cols[idx]] = cell ? cell.v : '-';
+        const headers = json.table.cols.map(c => c.label).filter(l => l !== "");
+        RAW_DATA = json.table.rows.map(row => {
+            let item = { spec: {} };
+            row.c.forEach((cell, i) => {
+                const val = cell ? cell.v : '-';
+                const key = headers[i];
+                if (key === 'รุ่น' || key === 'Model') item.name = String(val);
+                if (key === 'ประเภทพลังงาน') item.energy = String(val);
+                item.spec[key] = val;
             });
-            return {
-                name: obj['รุ่น'] || obj['Model'] || 'Unknown',
-                energy: obj['ประเภทพลังงาน'] || '-',
-                spec: obj
-            };
-        });
+            return item;
+        }).filter(item => item.name); // กรองแถวว่าง
+
         render();
     } catch (e) {
-        document.getElementById('grid').innerHTML = `<div class="loader" style="color:var(--red)">ไม่สามารถโหลดข้อมูลได้ กรุณาตรวจสอบการ Publish Google Sheets</div>`;
+        console.error(e);
+        document.getElementById('grid').innerHTML = `<div class="loader" style="color:var(--red)">ไม่สามารถโหลดข้อมูลได้</div>`;
     }
 }
 
 function render() {
-    const filtered = RAW_DATA.filter(m => 
+    const list = RAW_DATA.filter(m => 
         (curE === 'all' || m.energy === curE) && 
         (!curQ || m.name.toLowerCase().includes(curQ.toLowerCase()))
     );
     
-    document.getElementById('cnt').textContent = filtered.length + ' รุ่น';
+    document.getElementById('cnt').textContent = list.length + ' รุ่น';
     const g = document.getElementById('grid');
     
-    g.innerHTML = filtered.map(m => {
-        const sel = cmpSet.has(m.name);
+    g.innerHTML = list.map(m => {
+        // แก้ไข Logic การ Highlight: ใช้ชื่อรุ่นตรงๆ ในการเช็ค
+        const isSelected = cmpSet.has(m.name);
         return `
-            <div class="card ${sel ? 'sel' : ''}" onclick="openMdl('${m.name}')">
-                <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+            <div class="card ${isSelected ? 'sel' : ''}" onclick="handleCardClick('${m.name}')">
+                <div style="display:flex; justify-content:space-between; margin-bottom:12px; align-items:center;">
                     <div class="mn">${m.name}</div>
                     <span class="eb ${getEC(m.energy)}">${m.energy}</span>
                 </div>
-                <div style="font-size:14px; color:var(--dim)">
-                    <p>ยกหนัก: ${m.spec['น้ำหนักของสัมภาระที่ยกได้สูงสุด(Q)กก.'] || '-'} กก.</p>
-                    <p>วงเลี้ยว: ${m.spec['วงเลี้ยว (Wa) มม.'] || '-'} มม.</p>
+                <div style="font-size:14px; color:var(--dim); line-height:1.6">
+                    <div>น้ำหนักยก: <span style="color:var(--text)">${m.spec['น้ำหนักของสัมภาระที่ยกได้สูงสุด(Q)กก.'] || '-'} กก.</span></div>
+                    <div>วงเลี้ยว: <span style="color:var(--text)">${m.spec['วงเลี้ยว (Wa) มม.'] || '-'} มม.</span></div>
                 </div>
-                <div style="margin-top:15px; display:flex; gap:10px;">
-                    <button class="chip" style="flex:1" onclick="event.stopPropagation(); togCmp('${m.name}')">
-                        ${sel ? '✓ เลือกแล้ว' : '+ เปรียบเทียบ'}
+                <div style="margin-top:15px; display:flex; gap:8px;">
+                    <button class="chip" style="flex:1; border-color:var(--acc); color:var(--acc)" onclick="event.stopPropagation(); togCmp('${m.name}')">
+                        ${isSelected ? '✓ ยกเลิก' : '+ เปรียบเทียบ'}
                     </button>
                 </div>
             </div>
@@ -222,9 +210,16 @@ function render() {
     }).join('');
 }
 
-function getEC(e) { return e === 'เบนซิน' ? 'gas' : e === 'ดีเซล' ? 'diesel' : 'elec'; }
+function handleCardClick(name) {
+    openMdl(name);
+}
 
-// ข้อ 5: History Logic
+function getEC(e) {
+    if(e.includes('เบนซิน')) return 'gas';
+    if(e.includes('ดีเซล')) return 'diesel';
+    return 'elec';
+}
+
 function showHistory() {
     if (history.length === 0) return;
     const hBox = document.getElementById('search-history');
@@ -244,7 +239,7 @@ function doF() {
     if (curQ.length > 2 && !history.includes(curQ)) {
         history.unshift(curQ);
         history = history.slice(0, 5);
-        localStorage.setItem('forklift_history', JSON.stringify(history));
+        localStorage.setItem('fork_history', JSON.stringify(history));
     }
     render();
 }
@@ -256,25 +251,25 @@ function setE(v, el) {
     render();
 }
 
-// Modal
 function openMdl(name) {
     const m = RAW_DATA.find(x => x.name === name);
     if (!m) return;
     
     document.getElementById('mdl-title-area').innerHTML = `
         <div class="mn" style="font-size:24px; color:var(--acc)">${m.name}</div>
-        <div style="font-size:14px; color:var(--dim)">${m.energy} | Komatsu Forklift</div>
+        <div style="font-size:14px; color:var(--dim)">ข้อมูลทางเทคนิค | ${m.energy}</div>
     `;
 
-    let html = "";
+    let html = '<div style="display:grid; gap:2px;">';
     Object.entries(m.spec).forEach(([k, v]) => {
-        if(v !== '-') {
-            html += `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border)">
-                <span style="color:var(--dim)">${k}</span>
-                <span style="font-weight:500">${v}</span>
+        if(k !== 'Model' && k !== 'รุ่น' && v !== '-') {
+            html += `<div style="display:flex; justify-content:space-between; padding:12px; background:rgba(255,255,255,0.02); border-bottom:1px solid var(--border)">
+                <span style="color:var(--dim); font-size:15px;">${k}</span>
+                <span style="font-weight:500; text-align:right; margin-left:20px;">${v}</span>
             </div>`;
         }
     });
+    html += '</div>';
 
     document.getElementById('mb').innerHTML = html;
     document.getElementById('ov').classList.add('open');
@@ -282,12 +277,16 @@ function openMdl(name) {
 
 function closeMdl() { document.getElementById('ov').classList.remove('open'); }
 
-// Compare Logic
 function togCmp(name) {
-    if (cmpSet.has(name)) cmpSet.delete(name);
-    else if (cmpSet.size < 4) cmpSet.add(name);
-    else alert("เปรียบเทียบได้สูงสุด 4 รุ่น");
-    
+    if (cmpSet.has(name)) {
+        cmpSet.delete(name);
+    } else {
+        if (cmpSet.size < 4) {
+            cmpSet.add(name);
+        } else {
+            alert("เปรียบเทียบได้สูงสุด 4 รุ่น");
+        }
+    }
     document.getElementById('cc').textContent = cmpSet.size;
     document.getElementById('cmp-badge').classList.toggle('on', cmpSet.size > 0);
     render();
@@ -295,15 +294,20 @@ function togCmp(name) {
 
 function openCp() {
     const sel = [...cmpSet].map(n => RAW_DATA.find(m => m.name === n));
-    const keys = Object.keys(RAW_DATA[0].spec);
+    if (sel.length === 0) return;
+
+    const headers = Object.keys(RAW_DATA[0].spec);
     
-    let html = `<table><thead><tr><th>สเปค</th>`;
-    sel.forEach(s => html += `<th>${s.name}</th>`);
+    let html = `<table><thead><tr><th>รายการสเปค</th>`;
+    sel.forEach(s => html += `<th style="text-align:center">${s.name}<br><small>${s.energy}</small></th>`);
     html += `</tr></thead><tbody>`;
     
-    keys.forEach(k => {
-        html += `<tr><td style="color:var(--dim)">${k}</td>`;
-        sel.forEach(s => html += `<td>${s.spec[k] || '-'}</td>`);
+    headers.forEach(k => {
+        if(k === 'รุ่น' || k === 'Model') return;
+        html += `<tr><td style="color:var(--dim); font-weight:500;">${k}</td>`;
+        sel.forEach(s => {
+            html += `<td style="text-align:center">${s.spec[k] || '-'}</td>`;
+        });
         html += `</tr>`;
     });
     
@@ -314,7 +318,6 @@ function openCp() {
 
 function closeCp() { document.getElementById('cp').classList.remove('open'); }
 
-// ข้อ 2: Clear และกลับหน้า Home
 function clearCmp() {
     cmpSet.clear();
     document.getElementById('cc').textContent = 0;
@@ -328,17 +331,15 @@ function goHome() {
     curQ = '';
     document.getElementById('search').value = '';
     document.querySelectorAll('.chip').forEach(c => {
-        c.classList.toggle('on', c.textContent === 'ทั้งหมด');
+        c.classList.toggle('on', c.innerText === 'ทั้งหมด');
     });
     render();
 }
 
-// Close history on click outside
 document.onclick = (e) => {
     if (!e.target.closest('.sw')) document.getElementById('search-history').style.display = 'none';
 };
 
-// Start
 loadData();
 </script>
 </body>
