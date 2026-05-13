@@ -1,356 +1,597 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOMATSU Forklift Catalog</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #0a0c0f; --bg2: #111418; --bg3: #181c22;
-            --border: #252a32; --border2: #3a424f;
-            --acc: #f5a623; --text: #e8ecf2; --dim: #8a95a3;
-            --faint: #4a5360; --gas: #4ade80; --diesel: #60a5fa;
-            --elec: #a78bfa; --red: #f87171;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KOMATSU Forklift Catalog</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0c0f; --bg2:#111418; --bg3:#181c22;
+  --border:#252a32; --border2:#3a424f;
+  --acc:#f5a623; --text:#e8ecf2; --dim:#8a95a3;
+  --faint:#4a5360; --gas:#4ade80; --diesel:#60a5fa;
+  --elec:#a78bfa; --red:#f87171;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;font-size:17px;min-height:100vh;overflow-x:hidden;}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: 'Sarabun', sans-serif; font-size: 17px; min-height: 100vh; overflow-x: hidden; }
+/* ── HEADER ── */
+header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,12,15,0.97);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:0 24px;display:flex;align-items:center;height:70px;gap:16px;
+}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--acc);cursor:pointer;white-space:nowrap;}
+.logo span{color:var(--dim);font-size:15px;font-family:'Sarabun',sans-serif;letter-spacing:1px;margin-left:10px;}
+#cmp-badge{
+  display:none;background:var(--acc);color:#000;font-weight:700;
+  font-size:15px;padding:10px 20px;border-radius:30px;cursor:pointer;
+  border:none;margin-left:auto;align-items:center;gap:8px;
+  box-shadow:0 4px 15px rgba(245,166,35,0.3);white-space:nowrap;
+}
+#cmp-badge.on{display:inline-flex;}
 
-        /* Header */
-        header { 
-            position: sticky; top: 0; z-index: 100; background: rgba(10, 12, 15, 0.95); 
-            backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); 
-            padding: 0 20px; display: flex; align-items: center; height: 70px; 
-        }
-        .logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 3px; color: var(--acc); cursor: pointer; }
-        .logo span { color: var(--dim); font-size: 15px; font-family: 'Sarabun', sans-serif; letter-spacing: 1px; margin-left: 10px; }
+/* ── FILTER BAR ── */
+.fbar{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:16px 24px;display:flex;flex-wrap:wrap;align-items:center;gap:15px;
+}
+.sw{position:relative;flex:1;min-width:280px;max-width:450px;}
+.sw svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);opacity:.5;pointer-events:none;}
+#search{
+  width:100%;background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;color:var(--text);font-family:'Sarabun',sans-serif;
+  font-size:17px;padding:12px 15px 12px 48px;outline:none;transition:.2s;
+}
+#search:focus{border-color:var(--acc);}
+#search::placeholder{color:var(--faint);}
 
-        #cmp-badge { 
-            display: none; background: var(--acc); color: #000; font-weight: 700; 
-            font-size: 15px; padding: 10px 20px; border-radius: 30px; cursor: pointer; 
-            border: none; margin-left: auto; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(245,166,35,0.3);
-        }
-        #cmp-badge.on { display: inline-flex; }
+/* ④ search history */
+#search-history{
+  position:absolute;top:calc(100% + 6px);left:0;right:0;
+  background:var(--bg3);border:1px solid var(--border2);border-radius:12px;
+  z-index:300;display:none;box-shadow:0 12px 40px rgba(0,0,0,.7);overflow:hidden;
+}
+.h-item{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;font-size:16px;color:var(--dim);
+  cursor:pointer;border-bottom:1px solid var(--border);transition:.15s;
+}
+.h-item:last-child{border-bottom:none;}
+.h-item:hover{background:var(--border);color:var(--text);}
+.h-del{
+  margin-left:auto;color:var(--faint);font-size:13px;
+  background:transparent;border:none;cursor:pointer;padding:2px 6px;
+  border-radius:4px;transition:.15s;
+}
+.h-del:hover{color:var(--red);}
+.h-empty{padding:14px 16px;font-size:15px;color:var(--faint);text-align:center;}
 
-        /* Filter Bar */
-        .fbar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 16px 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 15px; }
-        .sw { position: relative; flex: 1; min-width: 300px; max-width: 450px; }
-        #search { 
-            width: 100%; background: var(--bg3); border: 1px solid var(--border); 
-            border-radius: 10px; color: var(--text); font-size: 17px; padding: 12px 15px 12px 45px; outline: none; transition: 0.2s;
-        }
-        #search:focus { border-color: var(--acc); }
-        .sw svg { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); opacity: .5; }
+.chips{display:flex;flex-wrap:wrap;gap:10px;}
+.chip{
+  padding:9px 20px;border-radius:25px;border:1px solid var(--border2);
+  background:transparent;color:var(--dim);font-family:'Sarabun',sans-serif;
+  font-size:15px;cursor:pointer;transition:.2s;white-space:nowrap;
+}
+.chip:hover{border-color:var(--acc);color:var(--acc);}
+.chip.on{background:var(--acc);color:#000;font-weight:700;border-color:var(--acc);}
+#cnt{margin-left:auto;font-size:15px;color:var(--faint);white-space:nowrap;}
 
-        /* History */
-        #search-history {
-            position: absolute; top: 105%; left: 0; right: 0; background: var(--bg3); 
-            border: 1px solid var(--border2); border-radius: 10px; z-index: 50; display: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6); overflow: hidden;
-        }
-        .history-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid var(--border); font-size: 15px; transition: 0.2s; }
-        .history-item:hover { background: var(--border); color: var(--acc); }
+/* ③ refresh button */
+#btn-refresh{
+  background:var(--bg3);color:var(--dim);border:1px solid var(--border2);
+  border-radius:10px;padding:10px 18px;cursor:pointer;font-size:15px;
+  font-family:'Sarabun',sans-serif;display:flex;align-items:center;gap:8px;
+  transition:.2s;white-space:nowrap;
+}
+#btn-refresh:hover{border-color:var(--acc);color:var(--acc);}
+#btn-refresh.loading svg{animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
-        .chips { display: flex; flex-wrap: wrap; gap: 10px; }
-        .chip { padding: 8px 18px; border-radius: 25px; border: 1px solid var(--border2); background: transparent; color: var(--dim); font-size: 15px; cursor: pointer; transition: 0.2s; }
-        .chip:hover { border-color: var(--acc); }
-        .chip.on { background: var(--acc); color: #000; font-weight: 600; border-color: var(--acc); }
+/* ── GRID ── */
+.gw{padding:25px;}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;}
 
-        /* Grid & Cards */
-        .gw { padding: 25px; }
-        #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-        .card { 
-            background: #1a1f28; border: 1px solid var(--border); border-radius: 15px; 
-            padding: 22px; cursor: pointer; position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .card:hover { transform: translateY(-5px); border-color: var(--acc); box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
-        .card.sel { border-color: var(--acc); background: rgba(245,166,35,0.08); box-shadow: inset 0 0 0 1px var(--acc); }
+/* ── CARD ── */
+.card{
+  background:#1a1f28;border:1px solid var(--border);border-radius:15px;
+  padding:22px;cursor:pointer;position:relative;
+  transition:all .25s cubic-bezier(.4,0,.2,1);
+}
+.card::before{
+  content:'';position:absolute;inset:-1px;border-radius:15px;
+  border:1px solid transparent;transition:border-color .25s;pointer-events:none;
+}
+.card:hover::before,.card.sel::before{border-color:var(--acc);}
+.card:hover{transform:translateY(-5px);box-shadow:0 15px 35px rgba(0,0,0,.5);}
+.card.sel{background:rgba(245,166,35,.06);}
 
-        .mn { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; margin-bottom: 5px; }
-        .eb { font-size: 12px; padding: 4px 12px; border-radius: 15px; font-weight: 700; }
-        .eb.gas { background: rgba(74,222,128,.15); color: var(--gas); }
-        .eb.diesel { background: rgba(96,165,250,.15); color: var(--diesel); }
-        .eb.elec { background: rgba(167,139,250,.15); color: var(--elec); }
+.mn{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;}
+.eb{font-size:12px;padding:4px 12px;border-radius:15px;font-weight:700;flex-shrink:0;}
+.eb.gas   {background:rgba(74,222,128,.15);color:var(--gas);}
+.eb.diesel{background:rgba(96,165,250,.15);color:var(--diesel);}
+.eb.elec  {background:rgba(167,139,250,.15);color:var(--elec);}
 
-        /* Modal (Fixed Header & Close) */
-        .ov { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.9); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 20px; }
-        .ov.open { display: flex; }
-        .mdl { 
-            background: var(--bg2); border: 1px solid var(--border2); border-radius: 20px; 
-            width: 100%; max-width: 850px; height: 85vh; display: flex; flex-direction: column; overflow: hidden; 
-        }
-        .mdl-head { 
-            padding: 25px 30px; border-bottom: 1px solid var(--border); background: var(--bg3); 
-            display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10;
-        }
-        .mdl-body { padding: 30px; overflow-y: auto; flex: 1; }
-        .mc { background: var(--red); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; }
+.card-body{font-size:16px;color:var(--dim);line-height:2;margin:14px 0;}
+.card-body strong{color:var(--text);}
+.card-foot{display:flex;gap:10px;margin-top:4px;}
+.btn-cmp-card{
+  flex:1;padding:10px;border-radius:10px;border:1px solid var(--border2);
+  background:transparent;color:var(--dim);font-family:'Sarabun',sans-serif;
+  font-size:14px;cursor:pointer;transition:.2s;
+}
+.btn-cmp-card:hover{border-color:var(--acc);color:var(--acc);}
+.btn-cmp-card.on{background:var(--acc);color:#000;font-weight:700;border-color:var(--acc);}
 
-        /* Compare Table */
-        #cp { position: fixed; inset: 0; z-index: 300; background: var(--bg); display: none; flex-direction: column; }
-        #cp.open { display: flex; }
-        .cph { padding: 20px 30px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 20px; background: var(--bg2); }
-        .btn-clear { background: var(--red); color: white; border: none; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        
-        .cpb { flex: 1; overflow: auto; padding: 30px; }
-        table { border-collapse: collapse; width: 100%; min-width: 1000px; }
-        th, td { border: 1px solid var(--border); padding: 16px; font-size: 15px; text-align: left; }
-        th { background: var(--bg3); color: var(--acc); position: sticky; top: 0; z-index: 5; font-size: 17px; }
-        tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+.empty-state{grid-column:1/-1;text-align:center;padding:80px;font-size:20px;color:var(--faint);}
 
-        .loader { text-align: center; padding: 100px; font-size: 20px; color: var(--acc); font-weight: bold; }
-    </style>
+/* ── MODAL ② sticky header ── */
+.ov{
+  position:fixed;inset:0;z-index:400;
+  background:rgba(0,0,0,.85);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.ov.open{display:flex;}
+.mdl{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:20px;
+  width:100%;max-width:860px;max-height:90vh;
+  display:flex;flex-direction:column;overflow:hidden;
+  animation:fadeUp .2s ease;
+}
+@keyframes fadeUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+/* ② sticky: mdl-head stays fixed while mdl-body scrolls */
+.mdl-head{
+  flex-shrink:0;  /* ← ไม่ให้ย่อตัว */
+  padding:24px 30px;
+  background:linear-gradient(135deg,var(--bg3),var(--bg2));
+  border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+}
+.mdl-body{flex:1;overflow-y:auto;padding:0;}  /* scroll ส่วนนี้เท่านั้น */
+.mc{
+  background:rgba(248,113,113,.15);color:var(--red);
+  border:1px solid var(--red);padding:10px 20px;border-radius:10px;
+  cursor:pointer;font-size:16px;font-weight:700;white-space:nowrap;
+  transition:.2s;flex-shrink:0;
+}
+.mc:hover{background:var(--red);color:#fff;}
+
+/* list rows in modal */
+.spec-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 30px;border-bottom:1px solid rgba(255,255,255,.03);
+  transition:background .15s;gap:16px;
+}
+.spec-row:nth-child(odd){background:rgba(255,255,255,.018);}
+.spec-row:hover{background:rgba(245,166,35,.05);}
+.spec-key{color:var(--dim);font-size:16px;flex:1.2;}
+.spec-val{font-size:16px;color:var(--text);font-weight:600;text-align:right;flex:1;}
+
+/* section headers in modal */
+.sec-head{
+  padding:12px 30px 8px;font-size:12px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;color:var(--faint);
+  background:var(--bg3);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:2;
+}
+
+/* ── ① COMPARE PAGE ── */
+#cp{
+  position:fixed;inset:0;z-index:500;
+  background:var(--bg);display:none;flex-direction:column;
+}
+#cp.open{display:flex;}
+.cph{
+  flex-shrink:0;padding:18px 28px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:16px;
+  background:var(--bg2);flex-wrap:wrap;
+}
+.cph .logo{font-size:22px;}
+.btn-clear{
+  background:rgba(248,113,113,.15);color:var(--red);
+  border:1px solid var(--red);padding:10px 20px;border-radius:10px;
+  cursor:pointer;font-size:16px;font-weight:700;white-space:nowrap;transition:.2s;
+}
+.btn-clear:hover{background:var(--red);color:#fff;}
+.cph .mc{margin-left:auto;}
+.cpb{flex:1;overflow:auto;padding:28px;}
+
+/* compare table */
+.cmp-tbl{border-collapse:collapse;width:100%;min-width:600px;}
+.cmp-tbl th{
+  background:var(--bg3);color:var(--acc);
+  padding:14px 18px;font-size:17px;font-weight:700;
+  border:1px solid var(--border);
+  position:sticky;top:0;z-index:5;text-align:center;
+  white-space:nowrap;
+}
+.cmp-tbl th:first-child{text-align:left;color:var(--dim);font-size:14px;}
+.cmp-tbl td{
+  padding:13px 18px;font-size:16px;color:var(--text);
+  border:1px solid var(--border);text-align:center;
+}
+.cmp-tbl td:first-child{
+  text-align:left;color:var(--dim);font-size:15px;
+  font-weight:600;background:var(--bg2);white-space:nowrap;
+}
+.cmp-tbl tr:nth-child(even) td{background:rgba(255,255,255,.02);}
+.cmp-tbl tr:hover td{background:rgba(245,166,35,.04);}
+
+/* ③ auto-refresh dot */
+.live-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--gas);
+  display:inline-block;animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+/* scrollbar */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+/* empty/loader */
+.loader{grid-column:1/-1;text-align:center;padding:80px;font-size:22px;color:var(--acc);font-weight:700;}
+</style>
 </head>
 <body>
 
+<!-- HEADER -->
 <header>
-    <div class="logo" onclick="goHome()">KOMATSU <span>FORKLIFT CATALOG</span></div>
-    <button id="cmp-badge" onclick="openCp()">⚖ <span id="cc">0</span> รุ่น — เปรียบเทียบ</button>
+  <div class="logo" onclick="goHome()">KOMATSU <span>FORKLIFT CATALOG</span></div>
+  <button id="cmp-badge" onclick="openCp()">⚖ <span id="cc">0</span> รุ่น — เปรียบเทียบ</button>
 </header>
 
+<!-- FILTER BAR -->
 <div class="fbar">
-    <div class="sw">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input id="search" type="text" placeholder="ค้นหาชื่อรุ่นรถยก..." oninput="doF()" onfocus="showHistory()" autocomplete="off">
-        <div id="search-history"></div>
-    </div>
-    <div class="chips">
-        <button class="chip on" onclick="setE('all',this)">ทั้งหมด</button>
-        <button class="chip" onclick="setE('เบนซิน',this)">⛽ เบนซิน</button>
-        <button class="chip" onclick="setE('ดีเซล',this)">🛢️ ดีเซล</button>
-        <button class="chip" onclick="setE('ไฟฟ้า',this)">⚡ ไฟฟ้า</button>
-    </div>
-    <span id="cnt" style="margin-left:auto; font-size: 15px; color: var(--faint);">กำลังดึงข้อมูล...</span>
+  <div class="sw">
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input id="search" type="text" placeholder="ค้นหาชื่อรุ่นรถยก เช่น FD25, FB15..."
+      oninput="doF()" onfocus="showHist()" autocomplete="off">
+    <div id="search-history"></div>
+  </div>
+  <div class="chips">
+    <button class="chip on" onclick="setE('all',this)">ทั้งหมด</button>
+    <button class="chip" onclick="setE('เบนซิน',this)">⛽ เบนซิน</button>
+    <button class="chip" onclick="setE('ดีเซล',this)">🛢️ ดีเซล</button>
+    <button class="chip" onclick="setE('ไฟฟ้า',this)">⚡ ไฟฟ้า</button>
+  </div>
+  <span id="cnt">กำลังโหลด…</span>
+  <!-- ③ refresh button -->
+  <button id="btn-refresh" onclick="loadData(true)">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+      <path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-9-9 9 9 0 0 1 9-9c2.52 0 4.8 1.02 6.44 2.67"/>
+      <path d="M21 3v6h-6"/>
+    </svg>
+    รีเฟรช <span class="live-dot"></span>
+  </button>
 </div>
 
-<div class="gw"><div id="grid"><div class="loader">กำลังเชื่อมต่อ Google Sheets...</div></div></div>
+<div class="gw"><div id="grid"><div class="loader">🔄 กำลังเชื่อมต่อ Google Sheets…</div></div></div>
 
-<!-- Modal Detail -->
+<!-- ② MODAL DETAIL (header sticky, body scrolls) -->
 <div class="ov" id="ov" onclick="if(event.target===this)closeMdl()">
-    <div class="mdl">
-        <div class="mdl-head">
-            <div id="mdl-title-area"></div>
-            <button class="mc" onclick="closeMdl()">✕ ปิดหน้าต่าง</button>
-        </div>
-        <div class="mdl-body" id="mb"></div>
+  <div class="mdl">
+    <div class="mdl-head">
+      <div>
+        <div class="mn" id="mdl-name" style="font-size:26px;color:var(--acc)"></div>
+        <div style="font-size:15px;color:var(--dim);margin-top:4px" id="mdl-sub"></div>
+      </div>
+      <button class="mc" onclick="closeMdl()">✕ ปิด</button>
     </div>
+    <div class="mdl-body" id="mb"></div>
+  </div>
 </div>
 
-<!-- Comparison View -->
+<!-- ① COMPARE PAGE -->
 <div id="cp">
-    <div class="cph">
-        <div class="logo">SPEC COMPARISON</div>
-        <button class="btn-clear" onclick="clearCmp()">ล้างข้อมูล & กลับหน้าหลัก</button>
-        <button class="mc" style="margin-left:auto; background:var(--bg3)" onclick="closeCp()">✕ ปิด</button>
-    </div>
-    <div class="cpb" id="cpb-table"></div>
+  <div class="cph">
+    <div class="logo">SPEC COMPARISON</div>
+    <button class="btn-clear" onclick="clearCmp()">🗑 ล้างทั้งหมด &amp; กลับหน้าหลัก</button>
+    <button class="mc" onclick="closeCp()">✕ ปิด</button>
+  </div>
+  <div class="cpb" id="cpb-table"></div>
 </div>
 
 <script>
-const SHEET_ID = '16A8YKMB1zLaURJH0cjZHR-MXdaIca_5kYRuilNIH-nw';
-const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+// ═══════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════
+const SHEET_ID  = '16A8YKMB1zLaURJH0cjZHR-MXdaIca_5kYRuilNIH-nw';
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&t=${Date.now()}`;
+const REFRESH_MS = 60_000; // ③ auto-refresh ทุก 60 วินาที
 
 let RAW_DATA = [];
-let curE = 'all', curQ = '', cmpSet = new Set();
-let searchHistory = JSON.parse(localStorage.getItem('fork_search_history') || '[]');
+let curE = 'all', curQ = '';
+let cmpSet = new Set();
 
-async function loadData() {
-    try {
-        const res = await fetch(SHEET_URL);
-        const text = await res.text();
-        // แปลงข้อมูลจาก Google JSON ให้เป็น Object ที่ใช้งานง่าย
-        const json = JSON.parse(text.substring(47).slice(0, -2));
-        const headers = json.table.cols.map(c => c.label).filter(l => l !== "");
-        
-        RAW_DATA = json.table.rows.map(row => {
-            let item = { spec: {} };
-            row.c.forEach((cell, i) => {
-                const val = cell ? cell.v : '-';
-                const key = headers[i];
-                if (key === 'รุ่น' || key === 'Model') item.name = String(val);
-                if (key === 'ประเภทพลังงาน') item.energy = String(val);
-                if (key) item.spec[key] = val;
-            });
-            return item;
-        }).filter(item => item.name && item.name !== '-');
-
-        render();
-    } catch (e) {
-        document.getElementById('grid').innerHTML = `
-            <div class="loader" style="color:var(--red)">
-                ⚠ ไม่สามารถโหลดข้อมูลได้<br>
-                <small style="color:var(--dim); font-weight:normal">โปรดตรวจสอบว่าได้กด "Publish to web" ใน Google Sheets แล้ว</small>
-            </div>`;
-    }
+// ═══════════════════════════════════════════
+//  ④ SEARCH HISTORY (localStorage)
+// ═══════════════════════════════════════════
+const HIST_KEY = 'fork_search_history_v2';
+function getHist() {
+  try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); } catch { return []; }
+}
+function saveHist(arr) { localStorage.setItem(HIST_KEY, JSON.stringify(arr.slice(0, 8))); }
+function addHist(q) {
+  if (!q || q.length < 2) return;
+  const arr = getHist().filter(x => x !== q);
+  arr.unshift(q);
+  saveHist(arr);
 }
 
-function render() {
-    const list = RAW_DATA.filter(m => 
-        (curE === 'all' || (m.energy && m.energy.includes(curE))) && 
-        (!curQ || (m.name && m.name.toLowerCase().includes(curQ.toLowerCase())))
-    );
-    
-    document.getElementById('cnt').textContent = list.length + ' รุ่น';
-    const g = document.getElementById('grid');
-    
-    if (list.length === 0) {
-        g.innerHTML = `<div class="loader" style="color:var(--dim)">ไม่พบข้อมูลที่ค้นหา</div>`;
-        return;
-    }
+function showHist() {
+  const arr = getHist();
+  const el  = document.getElementById('search-history');
+  if (!arr.length) {
+    el.innerHTML = '<div class="h-empty">ยังไม่มีประวัติการค้นหา</div>';
+  } else {
+    el.innerHTML = arr.map(q => `
+      <div class="h-item" onmousedown="pickHist('${q.replace(/'/g,"\\'")}')">
+        <span style="opacity:.5">🕐</span>
+        <span style="flex:1">${q}</span>
+        <button class="h-del" onmousedown="event.stopPropagation();delHist('${q.replace(/'/g,"\\'")}')">✕</button>
+      </div>`).join('');
+  }
+  el.style.display = 'block';
+}
+function pickHist(q) {
+  document.getElementById('search').value = q;
+  curQ = q;
+  document.getElementById('search-history').style.display = 'none';
+  render();
+}
+function delHist(q) {
+  saveHist(getHist().filter(x => x !== q));
+  showHist();
+}
+// ปิด dropdown เมื่อคลิกที่อื่น
+document.addEventListener('click', e => {
+  if (!e.target.closest('.sw'))
+    document.getElementById('search-history').style.display = 'none';
+});
 
-    g.innerHTML = list.map(m => {
-        const isSelected = cmpSet.has(m.name);
-        return `
-            <div class="card ${isSelected ? 'sel' : ''}" onclick="openMdl('${m.name}')">
-                <div style="display:flex; justify-content:space-between; margin-bottom:12px; align-items:center;">
-                    <div class="mn">${m.name}</div>
-                    <span class="eb ${getEC(m.energy)}">${m.energy || 'N/A'}</span>
-                </div>
-                <div style="font-size:15px; color:var(--dim); line-height:1.8">
-                    <div>• น้ำหนักยก: <strong style="color:var(--text)">${m.spec['น้ำหนักของสัมภาระที่ยกได้สูงสุด(Q)กก.'] || '-'}</strong> กก.</div>
-                    <div>• วงเลี้ยว: <strong style="color:var(--text)">${m.spec['วงเลี้ยว (Wa) มม.'] || '-'}</strong> มม.</div>
-                </div>
-                <div style="margin-top:18px; display:flex; gap:10px;">
-                    <button class="chip ${isSelected ? 'on' : ''}" style="flex:1; font-size:13px;" onclick="event.stopPropagation(); togCmp('${m.name}')">
-                        ${isSelected ? '✓ เลือกแล้ว' : '+ เปรียบเทียบ'}
-                    </button>
-                </div>
-            </div>
-        `;
-    }).join('');
+// ═══════════════════════════════════════════
+//  ③ LOAD & AUTO-REFRESH
+// ═══════════════════════════════════════════
+async function loadData(silent = false) {
+  const btn = document.getElementById('btn-refresh');
+  if (!silent) {
+    document.getElementById('grid').innerHTML = '<div class="loader">🔄 กำลังโหลดข้อมูล…</div>';
+  }
+  btn.classList.add('loading');
+
+  try {
+    // cache-bust ทุกครั้ง เพื่อดึงข้อมูลล่าสุดจาก Sheet
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&t=${Date.now()}`;
+    const res  = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    const json = JSON.parse(text.substring(47).slice(0, -2));
+    const headers = json.table.cols.map(c => c.label).filter(l => l);
+
+    RAW_DATA = json.table.rows
+      .map(row => {
+        const item = { spec: {} };
+        row.c.forEach((cell, i) => {
+          const v   = cell ? (cell.v ?? '-') : '-';
+          const key = headers[i];
+          if (key === 'รุ่น' || key === 'Model')    item.name   = String(v);
+          if (key === 'ประเภทพลังงาน')              item.energy = String(v);
+          if (key) item.spec[key] = v;
+        });
+        return item;
+      })
+      .filter(m => m.name && m.name !== '-' && m.name !== 'null');
+
+    render();
+  } catch(e) {
+    if (!silent) {
+      document.getElementById('grid').innerHTML = `
+        <div class="loader" style="color:var(--red)">
+          ⚠ โหลดข้อมูลไม่สำเร็จ<br>
+          <small style="font-weight:400;font-size:15px;color:var(--dim)">${e.message}<br>ตรวจสอบว่า Sheet ได้ "Publish to web" แล้ว</small>
+        </div>`;
+    }
+  } finally {
+    btn.classList.remove('loading');
+  }
+}
+
+// ③ auto-refresh ทุก 60 วินาที (silent = ไม่แสดง loading ใน grid)
+setInterval(() => loadData(true), REFRESH_MS);
+
+// ═══════════════════════════════════════════
+//  RENDER CARDS
+// ═══════════════════════════════════════════
+function render() {
+  const list = RAW_DATA.filter(m =>
+    (curE === 'all' || (m.energy && m.energy.includes(curE))) &&
+    (!curQ || (m.name && m.name.toLowerCase().includes(curQ.toLowerCase())))
+  );
+  document.getElementById('cnt').textContent = list.length + ' รุ่น';
+
+  if (!list.length) {
+    document.getElementById('grid').innerHTML = '<div class="empty-state">🔍 ไม่พบรุ่นที่ค้นหา</div>';
+    return;
+  }
+
+  document.getElementById('grid').innerHTML = list.map(m => {
+    const sel = cmpSet.has(m.name);
+    const ec  = getEC(m.energy);
+    return `
+      <div class="card ${sel ? 'sel' : ''}" onclick="openMdl('${escQ(m.name)}')">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:8px;">
+          <div class="mn">${m.name}</div>
+          <span class="eb ${ec}">${m.energy || 'N/A'}</span>
+        </div>
+        <div class="card-body">
+          <div>• น้ำหนักยก: <strong>${m.spec['น้ำหนักของสัมภาระที่ยกได้สูงสุด(Q)กก.'] ?? '-'}</strong> กก.</div>
+          <div>• วงเลี้ยว: <strong>${m.spec['วงเลี้ยว (Wa) มม.'] ?? '-'}</strong> มม.</div>
+          <div>• น้ำหนักรถ: <strong>${m.spec['น้ำหนักตัวรถ กก.'] ?? '-'}</strong> กก.</div>
+        </div>
+        <div class="card-foot">
+          <button class="btn-cmp-card ${sel ? 'on' : ''}"
+            onclick="event.stopPropagation();togCmp('${escQ(m.name)}')">
+            ${sel ? '✓ เลือกแล้ว' : '+ เปรียบเทียบ'}
+          </button>
+        </div>
+      </div>`;
+  }).join('');
 }
 
 function getEC(e) {
-    if(!e) return '';
-    if(e.includes('เบนซิน')) return 'gas';
-    if(e.includes('ดีเซล')) return 'diesel';
-    if(e.includes('ไฟฟ้า')) return 'elec';
-    return '';
+  if (!e) return '';
+  if (e.includes('เบนซิน')) return 'gas';
+  if (e.includes('ดีเซล'))  return 'diesel';
+  if (e.includes('ไฟฟ้า'))  return 'elec';
+  return '';
 }
+function escQ(s) { return s.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
 
-function showHistory() {
-    if (searchHistory.length === 0) return;
-    const hBox = document.getElementById('search-history');
-    hBox.innerHTML = searchHistory.map(h => `<div class="history-item" onclick="useHistory('${h}')">🕒 ${h}</div>`).join('');
-    hBox.style.display = 'block';
-}
-
-function useHistory(val) {
-    document.getElementById('search').value = val;
-    curQ = val;
-    document.getElementById('search-history').style.display = 'none';
-    render();
-}
-
+// ═══════════════════════════════════════════
+//  SEARCH & FILTER
+// ═══════════════════════════════════════════
 function doF() {
-    curQ = document.getElementById('search').value;
-    if (curQ.length > 2) {
-        if (!searchHistory.includes(curQ)) {
-            searchHistory.unshift(curQ);
-            searchHistory = searchHistory.slice(0, 5);
-            localStorage.setItem('fork_search_history', JSON.stringify(searchHistory));
-        }
-    }
-    render();
+  curQ = document.getElementById('search').value;
+  // บันทึก history เมื่อพิมพ์ครบ 3 ตัวขึ้นไป
+  if (curQ.length >= 3) addHist(curQ);
+  render();
+}
+function setE(v, el) {
+  curE = v;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  render();
 }
 
-function setE(v, el) {
-    curE = v;
-    document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
-    el.classList.add('on');
-    render();
-}
+// ═══════════════════════════════════════════
+//  MODAL DETAIL  (② header sticky)
+// ═══════════════════════════════════════════
+
+// Section grouping สำหรับ modal
+const SECTIONS = [
+  { title:'📦 ข้อมูลทั่วไป', keys:['ประเภทของรถยก','ประเภทพลังงาน','น้ำหนักของสัมภาระที่ยกได้สูงสุด(Q)กก.','โหลดเซ็นเตอร์(c) มม.'] },
+  { title:'⚖️ น้ำหนัก & เพลา', keys:['น้ำหนักตัวรถ กก.','การรับหน้ำหนักของเพลาล้อหน้ามีโหลด กก.','การรับหน้ำหนักของเพลาล้อหลังมีโหลด กก.','การรับหน้ำหนักของเพลาล้อหน้าไม่มีโหลด กก.','การรับน้ำหนักของเพลาล้อหลังไม่มีโหลด กก.'] },
+  { title:'📐 ขนาดตัวรถ', keys:['ฐานล้อ (y) มม.','ความยาวของตัวรถรวมงา (L1) มม.','ความยาวตัวรถถึงแผงงา (L2) มม.','ความกว้าง,ที่ยาง (b1) เดี่ยว มม.','ระยะห่างใต้เสาถึงพื้น (m1) มม.','ระยะห่างใต้ตัวถังถึงพื้น (m2) มม.'] },
+  { title:'🏗️ เสา & งา', keys:['มุมเอียงของเสา (หน้า/หลัง) องศา','ความสูงของเสาขณะลดระดับงา (h1) มม.','ระยะ Free Lift (h2) มม.','ความสูงการยก (h3) มม.','ความสูงของเสาขณะยืดออก (h4) มม.','ความสูงของโครงหลังคา (h6) มม.','ขนาดงา หนาxกว้างxยาว มม.'] },
+  { title:'🛞 ล้อ & ยาง', keys:['ประเภทยาง','ขนาดยางหน้า','ขนาดยางหลัง','จำนวนล้อ หน้า/หลัง (X=ล้อขับ)','ระยะความกว้างล้อ หน้า(b4) มม.','ระยะความกว้างล้อ หลัง(b3) มม.'] },
+  { title:'🔄 การเคลื่อนที่', keys:['วงเลี้ยว (Wa) มม.','ความกว้างทางเดินรถเมื่อมีพาเลท 1000x1200 มม.','ความกว้างทางเดินรถเมื่อมีพาเลท 1200x800 มม.','ระยะการตั้งชั้นแล็ค (Ast) มม.'] },
+  { title:'⚡ ประสิทธิภาพ', keys:['ความเร็วเดินหน้า มีสัมภาระ 1/2/3 กม./ชม.','ความเร็วเดินหน้า ไม่มีสัมภาระ 1/2/3 กม./ชม.','ความเร็วในการยก มีสัมภาระ มม./วินาที','ความเร็วในการยก ไม่มีสัมภาระ มม./วินาที','ความเร็วในการลดระดับงาลง มีสัมภาระ มม./วินาที','ความเร็วในการลดระดับงาลง ไม่มีสัมภาระ มม./วินาที','ความสามารถในการขึ้นทางลาดชัน มีสัมภาระ %'] },
+  { title:'🛑 เบรก & พวงมาลัย', keys:['ระบบเบรก ทำงาน/ควบคุม','เบรกมือ ทำงาน/ควบคุม','การบังคับเลี้ยว'] },
+  { title:'🔧 เครื่องยนต์ (ICE)', keys:['เครื่องยนต์','แรงม้า KW','ความเร็วรอบสูงสุด min-1','แรงบิดสูงสุด Nm@min-1','กระบอกสูบ/ความจุ cm3','ความจุถังน้ำมันเชื้อเพลิง ลิตร'] },
+  { title:'⚡ ระบบไฟฟ้า (EV)', keys:['ขนาดมอเตอร์ขับเคลื่อน(AC) กิโลวัตต์','ขนาดมอเตอร์ปั๊ม(AC) กิโลวัตต์','แรงดันแบตเตอรี่ โวลต์','แบตเตอรี่ Ah/5hr. (min) ไฟฟ้า','แบตเตอรี่ Ah/5hr. (max) ไฟฟ้า','น้ำหนักแบตเตอรี่ (min) กิโลกรัม'] },
+  { title:'💧 ไฮดรอลิก', keys:['แรงดันระบบไฮดรอลิก บาร์','ความจุถังน้ำมันไฮดรอลิก ลิตร'] },
+];
 
 function openMdl(name) {
-    const m = RAW_DATA.find(x => x.name === name);
-    if (!m) return;
-    
-    document.getElementById('mdl-title-area').innerHTML = `
-        <div class="mn" style="font-size:26px; color:var(--acc)">${m.name}</div>
-        <div style="font-size:15px; color:var(--dim)">${m.energy} Forklift Technical Specifications</div>
-    `;
+  const m = RAW_DATA.find(x => x.name === name);
+  if (!m) return;
 
-    let html = '<div style="display:grid; gap:2px;">';
-    Object.entries(m.spec).forEach(([k, v]) => {
-        if(k !== 'Model' && k !== 'รุ่น' && v !== '-' && v !== '') {
-            html += `
-            <div style="display:flex; justify-content:space-between; padding:15px; background:rgba(255,255,255,0.03); border-bottom:1px solid var(--border); align-items:center;">
-                <span style="color:var(--dim); font-size:16px; flex:1;">${k}</span>
-                <span style="font-weight:600; text-align:right; flex:1; color:var(--text);">${v}</span>
-            </div>`;
-        }
-    });
-    html += '</div>';
+  document.getElementById('mdl-name').textContent = m.name;
+  document.getElementById('mdl-sub').textContent  = (m.energy || '') + ' · Forklift Technical Specifications';
 
-    document.getElementById('mb').innerHTML = html;
-    document.getElementById('ov').classList.add('open');
+  let html = '';
+  // render แต่ละ section
+  SECTIONS.forEach(sec => {
+    const rows = sec.keys
+      .map(k => {
+        const v = m.spec[k];
+        if (v === undefined || v === '-' || v === '' || v === null) return '';
+        return `<div class="spec-row"><span class="spec-key">${k}</span><span class="spec-val">${v}</span></div>`;
+      })
+      .filter(Boolean)
+      .join('');
+    if (!rows) return;
+    html += `<div class="sec-head">${sec.title}</div>${rows}`;
+  });
+
+  // spec ที่ไม่อยู่ใน section ใดเลย
+  const allSectionKeys = SECTIONS.flatMap(s => s.keys);
+  const extra = Object.entries(m.spec)
+    .filter(([k,v]) => !allSectionKeys.includes(k) && k !== 'รุ่น' && k !== 'Model' && k !== 'ประเภทพลังงาน' && v && v !== '-')
+    .map(([k,v]) => `<div class="spec-row"><span class="spec-key">${k}</span><span class="spec-val">${v}</span></div>`)
+    .join('');
+  if (extra) html += `<div class="sec-head">📋 อื่นๆ</div>${extra}`;
+
+  document.getElementById('mb').innerHTML = html || '<div style="padding:30px;color:var(--faint)">ไม่มีข้อมูลสเปค</div>';
+  document.getElementById('ov').classList.add('open');
 }
-
 function closeMdl() { document.getElementById('ov').classList.remove('open'); }
 
+// ═══════════════════════════════════════════
+//  ① COMPARE
+// ═══════════════════════════════════════════
 function togCmp(name) {
-    if (cmpSet.has(name)) {
-        cmpSet.delete(name);
-    } else {
-        if (cmpSet.size < 4) cmpSet.add(name);
-        else alert("สามารถเปรียบเทียบได้สูงสุด 4 รุ่นพร้อมกัน");
-    }
-    document.getElementById('cc').textContent = cmpSet.size;
-    document.getElementById('cmp-badge').classList.toggle('on', cmpSet.size > 0);
-    render();
+  if (cmpSet.has(name)) {
+    cmpSet.delete(name);
+  } else {
+    if (cmpSet.size >= 4) { alert('เปรียบเทียบได้สูงสุด 4 รุ่น'); return; }
+    cmpSet.add(name);
+  }
+  document.getElementById('cc').textContent = cmpSet.size;
+  document.getElementById('cmp-badge').classList.toggle('on', cmpSet.size > 0);
+  render();
 }
 
 function openCp() {
-    const sel = [...cmpSet].map(n => RAW_DATA.find(m => m.name === n));
-    if (sel.length === 0) return;
+  if (!cmpSet.size) return;
+  const items = [...cmpSet].map(n => RAW_DATA.find(m => m.name === n)).filter(Boolean);
+  const allKeys = [...new Set(items.flatMap(m => Object.keys(m.spec)))].filter(k => k !== 'รุ่น' && k !== 'Model');
 
-    const allKeys = Object.keys(RAW_DATA[0].spec);
-    
-    let html = `<table><thead><tr><th>สเปค / รุ่น</th>`;
-    sel.forEach(s => html += `<th style="text-align:center">${s.name}<br><small style="color:var(--dim)">${s.energy}</small></th>`);
-    html += `</tr></thead><tbody>`;
-    
-    allKeys.forEach(k => {
-        if(k === 'รุ่น' || k === 'Model') return;
-        html += `<tr><td style="color:var(--dim); font-weight:bold; background:var(--bg2)">${k}</td>`;
-        sel.forEach(s => {
-            html += `<td style="text-align:center">${s.spec[k] || '-'}</td>`;
-        });
-        html += `</tr>`;
-    });
-    
-    html += `</tbody></table>`;
-    document.getElementById('cpb-table').innerHTML = html;
-    document.getElementById('cp').classList.add('open');
+  const hdrs = items.map(m =>
+    `<th>${m.name}<br><small style="font-size:13px;font-weight:400;color:var(--dim)">${m.energy||''}</small></th>`
+  ).join('');
+
+  const rows = allKeys.map(k => {
+    const vals = items.map(m => m.spec[k] ?? '–');
+    if (vals.every(v => !v || v === '-' || v === '–')) return '';
+    return `<tr>
+      <td>${k}</td>
+      ${vals.map(v => `<td>${v === '-' || !v ? '<span style="color:var(--faint)">–</span>' : v}</td>`).join('')}
+    </tr>`;
+  }).filter(Boolean).join('');
+
+  document.getElementById('cpb-table').innerHTML = `
+    <table class="cmp-tbl">
+      <thead><tr><th>สเปค / รุ่น</th>${hdrs}</tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+
+  document.getElementById('cp').classList.add('open');
 }
 
+// ① ปุ่มล้างและกลับหน้าหลัก
+function clearCmp() {
+  cmpSet.clear();
+  document.getElementById('cc').textContent = '0';
+  document.getElementById('cmp-badge').classList.remove('on');
+  closeCp();
+  goHome();
+}
 function closeCp() { document.getElementById('cp').classList.remove('open'); }
 
-function clearCmp() {
-    cmpSet.clear();
-    document.getElementById('cc').textContent = 0;
-    document.getElementById('cmp-badge').classList.remove('on');
-    closeCp();
-    goHome();
-}
-
+// ═══════════════════════════════════════════
+//  HOME / KEYBOARD
+// ═══════════════════════════════════════════
 function goHome() {
-    curE = 'all';
-    curQ = '';
-    document.getElementById('search').value = '';
-    document.querySelectorAll('.chip').forEach(c => {
-        c.classList.toggle('on', c.innerText.includes('ทั้งหมด'));
-    });
-    render();
+  curE = 'all'; curQ = '';
+  document.getElementById('search').value = '';
+  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.textContent.includes('ทั้งหมด')));
+  render();
 }
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeMdl(); closeCp(); }
+});
 
-// ปิด History เมื่อคลิกที่อื่น
-document.onclick = (e) => {
-    if (!e.target.closest('.sw')) document.getElementById('search-history').style.display = 'none';
-};
-
-// เริ่มโหลดข้อมูล
+// ═══════════════════════════════════════════
+//  START
+// ═══════════════════════════════════════════
 loadData();
 </script>
 </body>
